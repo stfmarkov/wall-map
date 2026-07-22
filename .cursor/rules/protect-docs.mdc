@@ -1,0 +1,38 @@
+---
+description: Do not modify docs/ unless explicitly requested; edit carefully when asked
+alwaysApply: true
+---
+
+# Protect the docs directory
+
+The `docs/` directory holds project vision, goals, and reference material. Treat it as authoritative and stable.
+
+## Default: do not touch
+
+- Do **not** create, edit, rename, or delete files under `docs/` unless the user **explicitly** asks you to.
+- Do not "helpfully" update docs while implementing code, fixing bugs, or refactoring.
+- Do not add new documentation files to `docs/` unless the user asks.
+- Reading files in `docs/` for context is fine and encouraged.
+
+## When the user explicitly asks for doc changes
+
+Update with extra care:
+
+- Read the full file first and understand its role (e.g. `project-goals.md` is the source of truth for scope).
+- Make the **smallest** change that satisfies the request — no drive-by rewrites, reorganizing, or tone edits.
+- Preserve existing structure, headings, and wording unless the user asked to change them.
+- Do not remove or contradict established goals, flows, or terminology without confirmation.
+- If the request is ambiguous, ask before making substantive edits.
+
+## Examples
+
+```
+# User: "Add login to the app"
+→ Implement in code only. Do not update docs/.
+
+# User: "Update project-goals.md to include social sharing"
+→ Edit only project-goals.md, minimally, as requested.
+
+# User: "Refresh the README in docs"
+→ Edit docs/README.md carefully; do not touch other docs files.
+```

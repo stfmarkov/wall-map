@@ -1,0 +1,38 @@
+# Nuxt dev/build outputs
+.output
+.data
+.nuxt
+.nitro
+.cache
+dist
+
+# Node dependencies
+node_modules
+
+# Logs
+logs
+*.log
+
+# Misc
+.DS_Store
+.fleet
+.idea
+
+# Local env files
+.env
+.env.*
+!.env.example
+
+# Supabase
+supabase/.temp/
+supabase/.branches/
+
+# TypeScript
+*.tsbuildinfo
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Test output (when added)
+coverage/
