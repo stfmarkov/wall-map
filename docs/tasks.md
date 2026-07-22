@@ -11,11 +11,11 @@ Do not skip PostGIS or RLS setup — they are harder to bolt on later.
 - [x] Add `@nuxtjs/supabase` and configure env vars (local `.env` + Render later)
 - [x] Create Supabase project (free tier)
 - [x] Enable PostGIS extension in Supabase SQL editor
-- [ ] Add `maplibre-gl`, `@tmcw/togeojson`, `@turf/turf`
-- [ ] Create a client-only `MapView` component with OpenFreeMap style URL
-- [ ] Verify map renders locally with pan/zoom
-- [ ] Set up Supabase CLI for migrations (`supabase init`, link project)
-- [ ] Decide image approach (see [Tech Stack — Images](./tech-stack.md#images-v1--decide-before-building-upload-ui)) and note choice here: ___________
+- [x] Add `maplibre-gl`, `@tmcw/togeojson`, `@turf/turf`
+- [x] Create a client-only `MapView` component with OpenFreeMap style URL
+- [x] Verify map renders locally with pan/zoom
+- [x] Set up Supabase CLI for migrations (`supabase init`, link project)
+- [x] Decide image approach: **Supabase Storage + Nitro/`sharp` transforms** (see [Tech Stack — Images](./tech-stack.md#images-v1))
 
 
 
@@ -59,11 +59,11 @@ Do not skip PostGIS or RLS setup — they are harder to bolt on later.
 ## Phase 4 — Images
 
 - [ ] Storage bucket `photos` + RLS policies
-- [ ] Client-side resize before upload (if Option A)
+- [ ] Nitro upload route: accept image → `sharp` display + thumbnail variants → Storage
 - [ ] `route_images` / `poi_images` tables or JSON array on parent — pick one, stay consistent
 - [ ] Attach photos on create/edit flows
-- [ ] Image gallery on detail pages
-- [ ] Thumbnail in map hover preview (CSS-scaled is fine for v1)
+- [ ] Image gallery on detail pages (display-sized files)
+- [ ] Thumbnail in map hover preview (use `sharp` thumb variant)
 
 
 

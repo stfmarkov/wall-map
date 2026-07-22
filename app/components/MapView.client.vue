@@ -10,6 +10,7 @@ let map: maplibregl.Map | null = null
 onMounted(() => {
   if (!container.value) return
 
+  // We can make the style and the center and zoom dynamic from the user's location or user settings
   map = new maplibregl.Map({
     container: container.value,
     style: OPENFREEMAP_STYLE,

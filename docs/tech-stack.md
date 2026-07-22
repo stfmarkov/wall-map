@@ -13,7 +13,7 @@ Technology choices and architecture for Wall Map. For the phased implementation 
 | **Basemap tiles** | [OpenFreeMap](https://openfreemap.org/) | Free map tiles; no API key required |
 | **Database** | Supabase (PostgreSQL + **PostGIS**) | Users, routes, POIs, trailmates, spatial queries |
 | **Auth** | Supabase Auth | Sign up, sign in, session management |
-| **File storage** | Supabase Storage | GPX originals, route/POI photos |
+| **File storage** | Supabase Storage + Nitro/`sharp` | GPX originals; photos stored in Storage, resized/thumbnailed with `sharp` on upload |
 | **Nuxt ↔ Supabase** | `@nuxtjs/supabase` | Auth middleware, composables, SSR cookie handling |
 | **GPX parsing** | `@tmcw/togeojson` | GPX → GeoJSON for map display and storage |
 | **Geo utilities** | `@turf/turf` | Distance, bounding box, simplify, spatial helpers |
@@ -31,6 +31,7 @@ Browser (Nuxt client)
 Nitro server routes
   ├── GPX import & validation
   ├── Google Maps → GPX conversion (v1, after GPX upload works)
+  ├── Image upload (`sharp` display + thumbnail → Storage)
   ├── Reverse geocoding (country/region on import)
   └── Any logic requiring secrets or heavy processing
 
@@ -50,26 +51,20 @@ Supabase
 
 ---
 
-## Open decisions
+## Decisions
 
-### Images (v1 — decide before building upload UI)
+### Images (v1)
 
-For a small group (you + 3–5 friends), keep it simple:
+**Decision: Supabase Storage + Nitro/`sharp` transforms.**
 
-| Approach | Pros | Cons |
-|----------|------|------|
-| **A. Supabase Storage, direct upload** *(recommended)* | Minimal code; RLS on buckets; no extra service | No automatic thumbnails; full-size files if not resized client-side |
-| B. Nitro + `sharp` thumbnails | Consistent thumb sizes for map hover previews | Extra server processing; more moving parts on Render |
-| C. Supabase image transforms | CDN-style resizing via URL params | Depends on Supabase plan/features |
-
-**Recommended v1 decision: Option A + client-side resize.**
+Photos live in a Supabase Storage bucket; upload goes through a Nitro route that uses `sharp` to produce a display-sized image and a thumbnail, then stores both (and records paths on the route/POI).
 
 1. One Storage bucket (e.g. `photos`) with RLS: users can write only under their own `{user_id}/` prefix.
-2. Before upload, resize in the browser to a max edge of ~1920px (Canvas API or a small helper). Good enough for trip photos on a wall map.
-3. Store the public/signed URL on the route or POI record.
-4. Map hover previews use the same image at reduced CSS size; add server thumbnails in v2 if load times matter.
+2. Nitro upload handler: accept image → `sharp` resize (e.g. max edge ~1920px for gallery + a small thumb for map hover) → upload variants to Storage.
+3. Store Storage paths (and sort order) on `route_images` / `poi_images` (or equivalent).
+4. Map hover previews use the thumbnail; detail galleries use the display-sized file.
 
-**Open:** confirm Option A or pick B/C before implementing the photo attach flow.
+Alternatives considered and rejected for v1: direct client upload with CSS-only thumbs; Supabase Image Transformations (plan-dependent).
 
 ---
 
@@ -89,6 +84,7 @@ Dev / tooling (add when needed):
 ```
 supabase (CLI — local migrations & type generation)
 zod (Nitro route input validation)
+sharp (image resize / thumbnails on upload)
 ```
 
 ---
@@ -132,8 +128,7 @@ Storage buckets:
 - Real-time GPS recording
 - Turn-by-turn navigation
 - Vector tile server / custom MVT pipeline (GeoJSON per user is fine at this scale)
-- Dedicated image CDN beyond Supabase Storage
-- Heavy server-side image pipeline unless Option B is chosen
+- Dedicated image CDN beyond Supabase Storage (Storage + `sharp` on upload is enough)
 
 ---
 
