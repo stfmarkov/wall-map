@@ -4,7 +4,7 @@ const supabase = useSupabaseClient()
 
 const signingOut = ref(false)
 
-async function signOut() {
+const signOut = async () => {
   signingOut.value = true
   await supabase.auth.signOut()
   signingOut.value = false

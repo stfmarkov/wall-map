@@ -17,7 +17,7 @@ const pending = ref(false)
 const errorMessage = ref('')
 const infoMessage = ref('')
 
-async function sendCode() {
+const sendCode = async () => {
   errorMessage.value = ''
   infoMessage.value = ''
   pending.value = true
@@ -37,7 +37,7 @@ async function sendCode() {
   infoMessage.value = 'Check your email for a 6-digit code.'
 }
 
-async function verifyCode() {
+const verifyCode = async () => {
   errorMessage.value = ''
   infoMessage.value = ''
   pending.value = true
@@ -58,14 +58,14 @@ async function verifyCode() {
   await navigateTo('/')
 }
 
-function backToEmail() {
+const backToEmail = () => {
   step.value = 'email'
   code.value = ''
   errorMessage.value = ''
   infoMessage.value = ''
 }
 
-async function onSubmit() {
+const onSubmit = async () => {
   if (step.value === 'email') {
     await sendCode()
   } else {
