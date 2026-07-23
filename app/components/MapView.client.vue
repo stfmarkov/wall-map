@@ -7,10 +7,11 @@ const OPENFREEMAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty'
 const container = ref<HTMLElement | null>(null)
 let map: maplibregl.Map | null = null
 
-onMounted(() => {
+onMounted(async () => {
+  await nextTick()
   if (!container.value) return
 
-  // We can make the style and the center and zoom dynamic from the user's location or user settings
+  // Style/center/zoom can later come from user location or settings
   map = new maplibregl.Map({
     container: container.value,
     style: OPENFREEMAP_STYLE,
@@ -19,6 +20,14 @@ onMounted(() => {
   })
 
   map.addControl(new maplibregl.NavigationControl(), 'top-right')
+
+  // ClientOnly / route layout can leave the canvas at 0×0 until measured again
+  map.once('load', () => {
+    map?.resize()
+  })
+  requestAnimationFrame(() => {
+    map?.resize()
+  })
 })
 
 onBeforeUnmount(() => {
@@ -33,8 +42,9 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .map-view {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
-  min-height: 100dvh;
 }
 </style>

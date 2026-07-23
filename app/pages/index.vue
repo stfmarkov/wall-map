@@ -27,12 +27,14 @@ const signOut = async () => {
       </div>
     </header>
 
-    <ClientOnly>
-      <MapView />
-      <template #fallback>
-        <div class="map-fallback">Loading map…</div>
-      </template>
-    </ClientOnly>
+    <div class="map-slot">
+      <ClientOnly>
+        <MapView />
+        <template #fallback>
+          <div class="map-fallback">Loading map…</div>
+        </template>
+      </ClientOnly>
+    </div>
   </div>
 </template>
 
@@ -42,6 +44,12 @@ const signOut = async () => {
   width: 100%;
   height: 100%;
   min-height: 100dvh;
+  overflow: hidden;
+}
+
+.map-slot {
+  position: absolute;
+  inset: 0;
 }
 
 .home-bar {
