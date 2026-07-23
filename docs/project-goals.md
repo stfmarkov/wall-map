@@ -14,6 +14,8 @@ The product should feel map-native — geography, trails, and exploration are ce
 
 Every user has a **profile** that represents their identity on the platform. The profile's **main screen is a map** — not a feed or a list. The map is the user's personal wall of routes and points of interest: a visual record of where they have been and what they found there.
 
+Maps are addressed by user id (`/users/[id]`); `/users/me` opens the signed-in user’s map. **Username** is an optional public handle, not required for routing. Users edit display name, username, bio, visibility, and avatar on `/profile`.
+
 ### Route
 
 A **route** is a path-based map object. Creating a route always starts from track data:
@@ -157,7 +159,7 @@ Exact naming and mechanics (follow vs mutual, requests, privacy) are TBD.
 
 ### Discover on another user's map
 
-1. User navigates to another profile (via trailmate list, search, or link)
+1. User navigates to another profile (via trailmate list, search, or `/users/[id]` link)
 2. User sees that user's map — routes and points of interest
 3. Same hover / click / filter behavior as on own profile
 4. User can view item details; export/sharing rules TBD

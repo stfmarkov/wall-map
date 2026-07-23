@@ -24,9 +24,12 @@ Do not skip PostGIS or RLS setup — they are harder to bolt on later.
 - [x] Supabase Auth: **email OTP** for v1 (see [Tech Stack — Auth](./tech-stack.md#auth-v1)); Resend SMTP + OTP template (see [Dev Flows](./dev-flows.md#auth-email-resend-smtp--otp))
 - [x] `profiles` table + trigger to create profile on signup
 - [x] RLS: users can read/update their own profile; public read for basic profile fields (for visiting maps)
-- [x] Login / logout pages (`/login` OTP flow; sign out on home) — signup is the same OTP path
+- [x] Login / logout (`/login` OTP flow; sign out on map chrome) — signup is the same OTP path
 - [x] Auth middleware: page (`auth` / `guest`) + Nitro (`server/middleware/auth.ts` for `/api/gpx`, `/api/images`, `/api/maps`)
-- [ ] Profile page shell at `/u/[username]` — map as main content (empty state OK)
+- [x] Profile map shell at `/users/[id]` (empty state OK); `/users/me` redirects to the signed-in user’s map
+- [x] Edit profile at `/profile` — display name, optional username, bio, public flag, avatar upload
+- [x] Storage bucket `avatars` (public read; owner write) + RLS policies
+- [x] Shared map chrome (`MapTopBar`, avatar link) and auth UI pieces (`AuthShell`, `UiField`, etc.)
 
 
 
@@ -80,7 +83,7 @@ Do not skip PostGIS or RLS setup — they are harder to bolt on later.
 ## Phase 6 — Social (trailmates & visiting)
 
 - [ ] `trailmates` table (follow direction, pending vs accepted — decide for v1)
-- [ ] Visit another user’s profile map (`/u/[username]`)
+- [ ] Visit another user’s profile map (`/users/[id]`)
 - [ ] Same hover / click / filter behavior as own map
 - [ ] Trailmate list UI: add, remove, browse
 

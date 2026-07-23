@@ -39,7 +39,7 @@ Nitro server routes
 Supabase
   ├── PostgreSQL + PostGIS (geometry, filters, indexes)
   ├── Auth (profiles linked to auth.users)
-  ├── Storage (gpx/, photos/ buckets)
+  ├── Storage (avatars/, gpx/, photos/ buckets)
   └── Row Level Security (own data vs public/trailmate visibility)
 ```
 
@@ -114,7 +114,7 @@ Tables to design in the first backend phase:
 
 | Table | Purpose |
 |-------|---------|
-| `profiles` | Display name, avatar, slug/username; 1:1 with `auth.users` |
+| `profiles` | Display name, optional username, bio, avatar URL, public flag; 1:1 with `auth.users`. Map URL is `/users/[id]` (not username) |
 | `routes` | Name, description, owner, geometry (PostGIS), country, region, metadata |
 | `points_of_interest` | Name, description, owner, location (PostGIS), country, region |
 | `route_images` / `poi_images` | Storage path, sort order, linked to parent |
@@ -126,6 +126,7 @@ Storage buckets:
 
 | Bucket | Contents | Access |
 |--------|----------|--------|
+| `avatars` | Profile avatar images | Public read; owner upload/update/delete under `{userId}/` |
 | `gpx` | Original uploaded GPX files | Owner read/write; optional public read for export |
 | `photos` | Route and POI images | Owner write; read per visibility rules |
 
