@@ -1,14 +1,9 @@
 <script setup lang="ts">
-const supabase = useSupabaseClient()
-const user = useSupabaseUser()
+definePageMeta({
+  middleware: 'guest',
+})
 
-watch(
-  user,
-  (current) => {
-    if (current) navigateTo('/')
-  },
-  { immediate: true },
-)
+const supabase = useSupabaseClient()
 
 const step = ref<'email' | 'code'>('email')
 const email = ref('')

@@ -7,12 +7,12 @@ export default defineNuxtConfig({
   modules: ['@nuxtjs/supabase'],
 
   supabase: {
-    // Keep map + login public for now; tighten with protected routes later in Phase 1
-    redirect: true,
+    // Pages: opt-in via app/middleware/auth.ts (and guest.ts on /login).
+    // API writes: server/middleware/auth.ts on /api/gpx, /api/images, /api/maps.
+    redirect: false,
     redirectOptions: {
       login: '/login',
       callback: '/confirm',
-      exclude: ['/', '/login'],
     },
   },
 })
