@@ -115,10 +115,11 @@ Tables to design in the first backend phase:
 | Table | Purpose |
 |-------|---------|
 | `profiles` | Display name, optional username, bio, avatar URL, public flag; 1:1 with `auth.users`. Map URL is `/users/[id]` (not username) |
-| `routes` | Name, description, owner, geometry (PostGIS), country, region, metadata |
+| `routes` | Name, description, owner, `geography(LineString)`, country, region, `gpx_path`, `distance_m` |
 | `points_of_interest` | Name, description, owner, location (PostGIS), country, region |
 | `route_images` / `poi_images` | Storage path, sort order, linked to parent |
 | `trailmates` | Follow relationship between users (exact mechanics TBD) |
+| `travelogues` | **Later** — trip narratives linked to `routes` by id; separate from route photos |
 
 Enable the **PostGIS** extension before creating geometry columns. Add spatial indexes on route geometry and POI location.
 
@@ -149,6 +150,7 @@ Storage buckets:
 - Turn-by-turn navigation
 - Vector tile server / custom MVT pipeline (GeoJSON per user is fine at this scale)
 - Dedicated image CDN beyond Supabase Storage (Storage + `sharp` on upload is enough)
+- Travelogues (separate collection linked to routes; see Build Tasks — Later)
 
 ---
 

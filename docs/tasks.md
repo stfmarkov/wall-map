@@ -35,8 +35,8 @@ Do not skip PostGIS or RLS setup — they are harder to bolt on later.
 
 ## Phase 2 — Routes (GPX core)
 
-- [ ] `routes` table with PostGIS `geography(LineString)`, name, description, owner, country, region
-- [ ] RLS: owner CRUD; others read if profile is public (or always public for v1)
+- [x] `routes` table with PostGIS `geography(LineString)`, name, description, owner, country, region, `gpx_path`, `distance_m`
+- [x] RLS: owner CRUD; others read if owner profile is public
 - [ ] Storage bucket `gpx` + upload policy
 - [ ] Nitro route: accept GPX upload → parse with `@tmcw/togeojson` → validate → store geometry + original file
 - [ ] Nitro route or DB function: reverse-geocode start point → store country/region
@@ -105,6 +105,17 @@ Do not skip PostGIS or RLS setup — they are harder to bolt on later.
 - [ ] Supabase Auth redirect URLs for production domain
 - [ ] Smoke test: signup → upload GPX → see route → add POI → attach photo → visit friend’s map
 - [ ] Basic error states and loading indicators on map/data fetches
+
+
+
+## Later — Travelogues
+
+Rich trip narratives as a **separate collection**, linked to routes by id (not embedded on `routes`). After core map/route/POI flows are solid.
+
+- [ ] `travelogues` table (title, body/content, owner, `route_id` → `routes`)
+- [ ] RLS aligned with route/profile visibility
+- [ ] Create / edit / view travelogue UI; open from route detail when linked
+- [ ] Travelogue media (separate from `route_images`)
 
 ---
 

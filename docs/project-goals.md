@@ -189,6 +189,7 @@ These are goals, not commitments for v1. They help keep early builds focused:
 - Turn-by-turn navigation
 - Commercial route marketplace
 - Detailed permissions model (unless needed for MVP)
+- **Travelogues** — rich trip narratives as a separate collection linked to routes by id (not stored on the route row; route photos stay on `route_images`)
 
 ## Success criteria
 
