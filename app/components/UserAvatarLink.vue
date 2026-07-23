@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const user = useSupabaseUser()
-const { profile, profilePath } = useOwnProfile()
+const ownProfile = useOwnProfileStore()
+const { profile, profilePath } = storeToRefs(ownProfile)
 
 const label = computed(
   () => profile.value?.display_name || profile.value?.username || user.value?.email || 'Your profile',

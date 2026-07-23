@@ -7,7 +7,11 @@ definePageMeta({
 
 const user = useSupabaseUser()
 const supabase = useSupabaseClient<Database>()
-const { profile, status, refresh } = useOwnProfile()
+const ownProfile = useOwnProfileStore()
+const { profile, status } = storeToRefs(ownProfile)
+const { refresh } = ownProfile
+
+await ownProfile.ensureLoaded()
 
 const displayName = ref('')
 const username = ref('')

@@ -451,6 +451,19 @@ export type Database = {
       }
       geomfromewkt: { Args: { "": string }; Returns: unknown }
       gettransactionid: { Args: never; Returns: unknown }
+      list_map_routes: {
+        Args: { p_owner_id: string }
+        Returns: {
+          country: string
+          created_at: string
+          description: string
+          distance_m: number
+          geometry: Json
+          id: string
+          name: string
+          region: string
+        }[]
+      }
       longtransactionsenabled: { Args: never; Returns: boolean }
       populate_geometry_columns:
         | { Args: { tbl_oid: unknown; use_typmod?: boolean }; Returns: number }

@@ -41,7 +41,7 @@ Do not skip PostGIS or RLS setup — they are harder to bolt on later.
 - [x] Nitro route: accept GPX upload → parse with `@tmcw/togeojson` → validate → store geometry + original file (`POST /api/gpx`)
 - [ ] Nitro route or DB function: reverse-geocode start point → store country/region
 - [x] UI: “Upload GPX” in map top bar → file picker → save (name from filename for now)
-- [ ] Display routes on profile map (GeoJSON source + line layer)
+- [x] Display routes on profile map (GeoJSON source + line layer)
 - [ ] Route detail page: full map, description, metadata
 - [ ] GPX export (download original or regenerated from stored geometry)
 - [ ] Edit route: update name, description; replace GPX

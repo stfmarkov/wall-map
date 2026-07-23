@@ -1,51 +1,39 @@
 <script setup lang="ts">
-import type { Database } from '~/types/database.types'
-
-type Profile = Pick<
-  Database['public']['Tables']['profiles']['Row'],
-  'id' | 'username' | 'display_name' | 'bio' | 'avatar_url'
->
-
 const route = useRoute()
-const user = useSupabaseUser()
-const supabase = useSupabaseClient<Database>()
+const mapWall = useMapWallStore()
+
+const {
+  profile,
+  routes,
+  status,
+  error,
+  isOwner,
+  hasMapContent,
+} = storeToRefs(mapWall)
 
 const userId = computed(() => String(route.params.id ?? ''))
 
-const {
-  data: profile,
-  status,
-  error,
-  refresh,
-} = await useAsyncData(
-  () => `profile-${userId.value}`,
-  async (): Promise<Profile | null> => {
-    if (!userId.value) return null
+await mapWall.loadWall(userId.value)
 
-    const { data, error: queryError } = await supabase
-      .from('profiles')
-      .select('id, username, display_name, bio, avatar_url')
-      .eq('id', userId.value)
-      .maybeSingle()
+watch(userId, (id) => {
+  void mapWall.loadWall(id)
+})
 
-    if (queryError) throw queryError
-    return data
-  },
-  { watch: [userId] },
-)
-
-const isOwner = computed(() => Boolean(user.value && profile.value && user.value.sub === profile.value.id))
 const emptyEyebrow = computed(() => (isOwner.value ? 'Your wall' : 'This wall'))
 const emptyCopy = computed(() =>
   isOwner.value
     ? 'No routes or places yet. Upload a GPX track or pin a point of interest to start the map.'
     : 'No routes or places on this map yet.',
 )
+
+const onRouteUploaded = async () => {
+  await mapWall.refreshRoutes()
+}
 </script>
 
 <template>
   <AuthShell
-    v-if="status === 'pending'"
+    v-if="status === 'pending' || status === 'idle'"
     eyebrow="Wall Map"
     title="Loading map…"
     lede="Fetching this traveler’s profile."
@@ -59,7 +47,7 @@ const emptyCopy = computed(() =>
   >
     <UiMessage variant="error">{{ error.message }}</UiMessage>
     <div class="shell-actions">
-      <UiButton variant="ghost" @click="refresh">
+      <UiButton variant="ghost" @click="mapWall.refresh()">
         Try again
       </UiButton>
     </div>
@@ -83,18 +71,19 @@ const emptyCopy = computed(() =>
     <MapTopBar
       :username="profile.username"
       :show-edit-profile="isOwner"
+      @uploaded="onRouteUploaded"
     />
 
     <div class="map-slot">
       <ClientOnly>
-        <MapView />
+        <MapView :routes="routes" />
         <template #fallback>
           <div class="map-fallback">Loading map…</div>
         </template>
       </ClientOnly>
     </div>
 
-    <aside class="empty-state">
+    <aside v-if="!hasMapContent" class="empty-state">
       <p class="eyebrow">{{ emptyEyebrow }}</p>
       <p class="empty-copy">{{ emptyCopy }}</p>
     </aside>

@@ -4,7 +4,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
 
-  modules: ['@nuxtjs/supabase'],
+  modules: ['@pinia/nuxt', '@nuxtjs/supabase'],
 
   supabase: {
     // Pages: opt-in via app/middleware/auth.ts (and guest.ts on /login).
