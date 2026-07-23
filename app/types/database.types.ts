@@ -72,6 +72,56 @@ export type Database = {
         }
         Relationships: []
       }
+      routes: {
+        Row: {
+          country: string | null
+          created_at: string
+          description: string | null
+          distance_m: number | null
+          geom: unknown
+          gpx_path: string | null
+          id: string
+          name: string
+          owner_id: string
+          region: string | null
+          updated_at: string
+        }
+        Insert: {
+          country?: string | null
+          created_at?: string
+          description?: string | null
+          distance_m?: number | null
+          geom: unknown
+          gpx_path?: string | null
+          id?: string
+          name: string
+          owner_id: string
+          region?: string | null
+          updated_at?: string
+        }
+        Update: {
+          country?: string | null
+          created_at?: string
+          description?: string | null
+          distance_m?: number | null
+          geom?: unknown
+          gpx_path?: string | null
+          id?: string
+          name?: string
+          owner_id?: string
+          region?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "routes_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       spatial_ref_sys: {
         Row: {
           auth_name: string | null

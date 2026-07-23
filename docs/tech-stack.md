@@ -128,7 +128,7 @@ Storage buckets:
 | Bucket | Contents | Access |
 |--------|----------|--------|
 | `avatars` | Profile avatar images | Public read; owner upload/update/delete under `{userId}/` |
-| `gpx` | Original uploaded GPX files | Owner read/write; optional public read for export |
+| `gpx` | Original uploaded GPX files | Private bucket; owner write under `{userId}/`; read for owner or when owner profile is public (trailmates later) |
 | `photos` | Route and POI images | Owner write; read per visibility rules |
 
 ---
