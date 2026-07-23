@@ -12,7 +12,8 @@ Technology choices and architecture for Wall Map. For the phased implementation 
 | **Map rendering** | MapLibre GL | Interactive map — routes as lines, POIs as pins |
 | **Basemap tiles** | [OpenFreeMap](https://openfreemap.org/) | Free map tiles; no API key required |
 | **Database** | Supabase (PostgreSQL + **PostGIS**) | Users, routes, POIs, trailmates, spatial queries |
-| **Auth** | Supabase Auth | Sign up, sign in, session management |
+| **Auth** | Supabase Auth + email OTP | Passwordless sign-in via 6-digit code; Resend SMTP for delivery |
+| **Auth email** | Resend (SMTP) | Required for custom OTP templates and sending beyond team/test limits |
 | **File storage** | Supabase Storage + Nitro/`sharp` | GPX originals; photos stored in Storage, resized/thumbnailed with `sharp` on upload |
 | **Nuxt ↔ Supabase** | `@nuxtjs/supabase` | Auth middleware, composables, SSR cookie handling |
 | **GPX parsing** | `@tmcw/togeojson` | GPX → GeoJSON for map display and storage |
@@ -52,6 +53,24 @@ Supabase
 ---
 
 ## Decisions
+
+### Auth (v1)
+
+**Decision: email OTP (not magic link, not email/password).**
+
+Users enter email → receive a 6-digit code → `verifyOtp` on the same page (`/login`). Session is handled by `@nuxtjs/supabase`.
+
+Why OTP over magic link for this app:
+
+- Keeps the session in the same browser tab (avoids email clients opening a different browser and dropping cookies)
+- Avoids link-prefetchers consuming one-time URLs
+- Fine friction for infrequent logins on a small friends app
+
+Why not email/password for v1: no password reset/support surface; passwordless is enough.
+
+**Email delivery: Resend SMTP.** New free-tier Supabase projects cannot edit auth email templates until custom SMTP is configured. Resend unlocks the Magic Link template (used for OTP) so the body can include `{{ .Token }}`. Setup and domain notes: [Dev Flows — Auth email](./dev-flows.md#auth-email-resend-smtp--otp).
+
+Alternatives considered and rejected for v1: magic link; email/password.
 
 ### Images (v1)
 

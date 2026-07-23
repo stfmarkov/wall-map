@@ -64,6 +64,35 @@ Project ref is the subdomain of the Supabase URL: `https://<project-ref>.supabas
 
 ---
 
+## Auth email (Resend SMTP + OTP)
+
+Wall Map uses **email OTP** (6-digit code), not magic links. On new free-tier Supabase projects, auth email templates are **read-only** until custom SMTP is configured. We use [Resend](https://resend.com) for that.
+
+### One-time Supabase + Resend setup
+
+1. Create a Resend account and an API key.
+2. In Supabase: **Authentication → Emails → SMTP Settings** — enable custom SMTP:
+
+   | Field | Value |
+   |-------|--------|
+   | Host | `smtp.resend.com` |
+   | Port | `587` |
+   | Username | `resend` |
+   | Password | Resend API key |
+   | Sender name | e.g. `Wall Map` |
+   | Sender email | see below |
+
+3. After SMTP is saved, template editing unlocks. Edit **Magic Link** (same template as OTP) so the body includes `{{ .Token }}` (the 6-digit code). The dashboard **preview** shows the literal `{{ .Token }}` — that is normal; the real email substitutes digits.
+
+### Sender email and domains
+
+- **Without a verified domain:** use Resend’s test sender `onboarding@resend.dev`. It is fine for unlocking templates and testing OTP on **your own** Resend account email. It generally cannot send reliably to other people.
+- **To send login emails to friends / normal addresses:** add and verify a **domain** in Resend (DNS records), then change the Supabase SMTP sender to an address on that domain (e.g. `login@yourdomain.com`).
+
+Default Supabase mail (no custom SMTP) is also limited (~2 emails/hour, team-member addresses only). Custom SMTP is required for real invite/login use, not only for OTP templates.
+
+---
+
 ## Related documents
 
 - [Tech Stack](./tech-stack.md) — architecture and dependencies

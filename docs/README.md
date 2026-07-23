@@ -9,7 +9,7 @@ Wall Map is a web app for collecting, sharing, and exploring personal route maps
 | [Project Goals](./project-goals.md) | Vision, core concepts, user flows, and feature scope |
 | [Tech Stack](./tech-stack.md) | Technology choices, architecture, and hosting |
 | [Build Tasks](./tasks.md) | Phased implementation checklist |
-| [Dev Flows](./dev-flows.md) | Repeatable CLI workflows (migrations, types, env) |
+| [Dev Flows](./dev-flows.md) | Repeatable CLI workflows (migrations, types, env, Resend/OTP email setup) |
 
 ## Quick summary
 

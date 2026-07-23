@@ -21,10 +21,10 @@ Do not skip PostGIS or RLS setup — they are harder to bolt on later.
 
 ## Phase 1 — Auth & profiles
 
-- [ ] Supabase Auth: email/password or magic link (pick one for v1)
+- [x] Supabase Auth: **email OTP** for v1 (see [Tech Stack — Auth](./tech-stack.md#auth-v1)); Resend SMTP + OTP template (see [Dev Flows](./dev-flows.md#auth-email-resend-smtp--otp))
 - [ ] `profiles` table + trigger to create profile on signup
 - [ ] RLS: users can read/update their own profile; public read for basic profile fields (for visiting maps)
-- [ ] Login / signup / logout pages
+- [x] Login / logout pages (`/login` OTP flow; sign out on home) — signup is the same OTP path
 - [ ] Auth middleware: protect “my map” and edit routes
 - [ ] Profile page shell at `/u/[username]` — map as main content (empty state OK)
 

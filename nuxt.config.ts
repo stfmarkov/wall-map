@@ -4,22 +4,15 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
 
-  runtimeConfig: {
-    public: {
-      supabaseUrl: process.env.SUPABASE_URL,
-      supabaseKey: process.env.SUPABASE_KEY,
-    },
-  },
-
   modules: ['@nuxtjs/supabase'],
 
   supabase: {
-    // Re-enable redirect + login/callback routes in Phase 1 (auth pages)
-    redirect: false,
+    // Keep map + login public for now; tighten with protected routes later in Phase 1
+    redirect: true,
     redirectOptions: {
       login: '/login',
       callback: '/confirm',
-      exclude: ['/'],
+      exclude: ['/', '/login'],
     },
   },
 })
