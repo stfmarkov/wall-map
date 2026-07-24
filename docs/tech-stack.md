@@ -31,7 +31,7 @@ Browser (Nuxt client)
 
 Nitro server routes
   ├── GPX import & validation
-  ├── Google Maps → GPX conversion (v1, after GPX upload works)
+  ├── Google Maps → GPX / place → POI conversion (v1, after upload + pin-drop work)
   ├── Image upload (`sharp` display + thumbnail → Storage)
   ├── Reverse geocoding (country/region on import)
   └── Any logic requiring secrets or heavy processing
@@ -47,7 +47,7 @@ Supabase
 
 - **MapLibre is client-only.** Wrap the map component in `<ClientOnly>` or use a dynamic import; do not SSR the map canvas.
 - **PostGIS from day one.** Store route geometry as `geography(LineString)` and POI location as `geography(Point)`. Compute and store country/region at import time — do not reverse-geocode on every filter change.
-- **Google Maps → GPX** is in v1 scope but built *after* the GPX upload path works. Weekend-travel use case means this can ship in the same release once core import/display is solid.
+- **Google Maps links** (route → GPX and place → POI) are in v1 scope but built *after* GPX upload and pin-drop create work. Weekend-travel use case means this can ship in the same release once core import/display is solid.
 - **Render** runs `nuxt build` + `node .output/server/index.mjs` as a Web Service. Supabase stays on its own free tier. Total cost for 3–5 friends should be near zero.
 
 ---

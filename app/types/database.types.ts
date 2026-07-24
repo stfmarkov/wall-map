@@ -39,6 +39,50 @@ export type Database = {
   }
   public: {
     Tables: {
+      points_of_interest: {
+        Row: {
+          country: string | null
+          created_at: string
+          description: string | null
+          geom: unknown
+          id: string
+          name: string
+          owner_id: string
+          region: string | null
+          updated_at: string
+        }
+        Insert: {
+          country?: string | null
+          created_at?: string
+          description?: string | null
+          geom: unknown
+          id?: string
+          name: string
+          owner_id: string
+          region?: string | null
+          updated_at?: string
+        }
+        Update: {
+          country?: string | null
+          created_at?: string
+          description?: string | null
+          geom?: unknown
+          id?: string
+          name?: string
+          owner_id?: string
+          region?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "points_of_interest_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -450,6 +494,19 @@ export type Database = {
         Returns: boolean
       }
       geomfromewkt: { Args: { "": string }; Returns: unknown }
+      get_map_poi: {
+        Args: { p_poi_id: string }
+        Returns: {
+          country: string
+          created_at: string
+          description: string
+          geometry: Json
+          id: string
+          name: string
+          owner_id: string
+          region: string
+        }[]
+      }
       get_map_route: {
         Args: { p_route_id: string }
         Returns: {
@@ -466,6 +523,18 @@ export type Database = {
         }[]
       }
       gettransactionid: { Args: never; Returns: unknown }
+      list_map_pois: {
+        Args: { p_owner_id: string }
+        Returns: {
+          country: string
+          created_at: string
+          description: string
+          geometry: Json
+          id: string
+          name: string
+          region: string
+        }[]
+      }
       list_map_routes: {
         Args: { p_owner_id: string }
         Returns: {

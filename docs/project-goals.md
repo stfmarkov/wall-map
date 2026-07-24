@@ -47,6 +47,13 @@ Routes can be **edited** after creation:
 
 A **point of interest** (POI) is a place-based map object. It works much like a route — same metadata, editing, map interactions, filters, and social browsing — but its geometry is a **single point** on the map, not a path.
 
+Creating a point of interest starts from a location:
+
+| Input | Behavior |
+|-------|----------|
+| **Drop a pin** | Click the map (or enter coordinates) to place the point |
+| **Google Maps place / share link** | Converted to a coordinate, then stored and treated like any other POI |
+
 Every point of interest has at minimum:
 
 - **Name** — human-readable title
@@ -58,8 +65,6 @@ Points of interest can be **edited** after creation:
 - Update **location** (move the pin on the map)
 - Add or update a **note / description**
 - Attach **images**
-
-Creation is placing a point — for example by clicking the map or entering coordinates — rather than importing track data.
 
 ### Map (profile main screen)
 
@@ -146,7 +151,7 @@ Exact naming and mechanics (follow vs mutual, requests, privacy) are TBD.
 ### Create a point of interest
 
 1. User opens their profile map
-2. User chooses to add a point of interest (e.g. click the map to place a pin)
+2. User chooses to add a point of interest (drop a pin on the map, or paste a Google Maps place / share link)
 3. System creates the POI at that location
 4. User names it and optionally adds description and images
 5. Point of interest appears on the profile map
@@ -179,6 +184,7 @@ These are goals, not commitments for v1. They help keep early builds focused:
 
 - User profiles with map as home
 - GPX import and Google Maps → GPX conversion
+- Google Maps place / share link → point of interest conversion
 - Route CRUD (create, read, update; delete TBD)
 - Point of interest CRUD (create, read, update; delete TBD)
 - Route metadata: name, description, images

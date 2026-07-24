@@ -50,12 +50,12 @@ Do not skip PostGIS or RLS setup — they are harder to bolt on later.
 
 ## Phase 3 — Points of interest
 
-- [ ] `points_of_interest` table with PostGIS `geography(Point)`
-- [ ] RLS policies (same pattern as routes)
-- [ ] UI: click map to place pin (or coordinate entry)
-- [ ] POI detail page
-- [ ] Edit POI: move pin, update name/description
-- [ ] Map: pin layer + hover/click (shared interaction pattern with routes)
+- [x] `points_of_interest` table with PostGIS `geography(Point)`
+- [x] RLS policies (same pattern as routes)
+- [x] UI: click map to place pin (or coordinate entry)
+- [x] POI detail page
+- [x] Edit POI: update name/description (move pin later)
+- [x] Map: pin layer + hover/click (shared interaction pattern with routes)
 
 
 
@@ -89,11 +89,12 @@ Do not skip PostGIS or RLS setup — they are harder to bolt on later.
 
 
 
-## Phase 7 — Google Maps → GPX (v1, after GPX path is stable)
+## Phase 7 — Google Maps links (v1, after GPX / pin-drop are stable)
 
-- [ ] Research reliable extraction from Google Maps share URLs
-- [ ] Nitro route: accept URL → produce GPX → same pipeline as file upload
-- [ ] UI: “Paste Google Maps link” on add-route flow
+- [ ] Research reliable extraction from Google Maps share URLs (routes and places)
+- [ ] Nitro route: accept route URL → produce GPX → same pipeline as file upload
+- [ ] Nitro route: accept place / share URL → coordinate → same pipeline as pin-drop POI
+- [ ] UI: “Paste Google Maps link” on add-route and add-POI flows
 - [ ] Error handling for unsupported or broken links
 
 

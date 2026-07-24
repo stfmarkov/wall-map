@@ -14,8 +14,8 @@ Wall Map is a web app for collecting, sharing, and exploring personal route maps
 ## Quick summary
 
 - **Users** have a profile whose main screen is an interactive map of their routes and points of interest.
-- **Routes** are created from GPX files or Google Maps links (converted to GPX).
-- **Points of interest** are single locations on the map — same metadata and UX as routes, but a pin instead of a path.
+- **Routes** are created from GPX files or Google Maps route links (converted to GPX).
+- **Points of interest** are single locations on the map — drop a pin or paste a Google Maps place link; same metadata and UX as routes, but a pin instead of a path.
 - **Routes and POIs** can be edited with a name, description, images; routes also accept updated track data, POIs can be moved.
 - **Maps** show routes and POIs with hover previews and a detail view on click.
 - **Filters** help narrow by country, region, off-road, content type, and more.

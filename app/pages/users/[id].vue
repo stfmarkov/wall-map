@@ -5,6 +5,7 @@ const mapWall = useMapWallStore()
 const {
   profile,
   routes,
+  pois,
   status,
   error,
   isOwner,
@@ -12,10 +13,17 @@ const {
 } = storeToRefs(mapWall)
 
 const userId = computed(() => String(route.params.id ?? ''))
+const pinDropActive = ref(false)
+const placing = ref(false)
+const placeMessage = ref('')
+const placeError = ref('')
 
 await mapWall.loadWall(userId.value)
 
 watch(userId, (id) => {
+  pinDropActive.value = false
+  placeMessage.value = ''
+  placeError.value = ''
   void mapWall.loadWall(id)
 })
 
@@ -27,11 +35,64 @@ const emptyCopy = computed(() =>
 )
 
 const onRouteUploaded = async () => {
+  pinDropActive.value = false
   await mapWall.refreshRoutes()
 }
 
+const onTogglePinDrop = () => {
+  if (!isOwner.value) return
+  placeMessage.value = ''
+  placeError.value = ''
+  pinDropActive.value = !pinDropActive.value
+}
+
 const onRouteSelect = (id: string) => {
+  if (pinDropActive.value) return
   void navigateTo(`/routes/${id}`)
+}
+
+const onPoiSelect = (id: string) => {
+  if (pinDropActive.value) return
+  void navigateTo(`/pois/${id}`)
+}
+
+const onPlace = async (coords: { lng: number; lat: number }) => {
+  if (!isOwner.value || !pinDropActive.value || placing.value) return
+
+  placing.value = true
+  placeMessage.value = ''
+  placeError.value = ''
+
+  try {
+    const result = await $fetch<{
+      poi: { id: string; name: string }
+    }>('/api/poi', {
+      method: 'POST',
+      body: {
+        lng: coords.lng,
+        lat: coords.lat,
+      },
+    })
+
+    placeMessage.value = `Saved “${result.poi.name}”`
+    pinDropActive.value = false
+    await mapWall.refreshPois()
+  }
+  catch (err: unknown) {
+    const errorInfo = err as {
+      data?: { statusMessage?: string }
+      statusMessage?: string
+      message?: string
+    }
+    placeError.value
+      = errorInfo.data?.statusMessage
+        || errorInfo.statusMessage
+        || errorInfo.message
+        || 'Failed to place pin'
+  }
+  finally {
+    placing.value = false
+  }
 }
 </script>
 
@@ -75,12 +136,26 @@ const onRouteSelect = (id: string) => {
     <MapTopBar
       :username="profile.username"
       :show-edit-profile="isOwner"
+      :show-drop-pin="isOwner"
+      :pin-drop-active="pinDropActive"
       @uploaded="onRouteUploaded"
+      @toggle-pin-drop="onTogglePinDrop"
     />
+
+    <p v-if="placeError" class="place-status place-error" role="status">{{ placeError }}</p>
+    <p v-else-if="placeMessage" class="place-status place-ok" role="status">{{ placeMessage }}</p>
+    <p v-else-if="placing" class="place-status place-ok" role="status">Saving pin…</p>
 
     <div class="map-slot">
       <ClientOnly>
-        <MapView :routes="routes" @select="onRouteSelect" />
+        <MapView
+          :routes="routes"
+          :pois="pois"
+          :pin-drop-active="pinDropActive"
+          @select="onRouteSelect"
+          @select-poi="onPoiSelect"
+          @place="onPlace"
+        />
         <template #fallback>
           <div class="map-fallback">Loading map…</div>
         </template>
@@ -112,6 +187,30 @@ const onRouteSelect = (id: string) => {
 .map-slot {
   position: absolute;
   inset: 0;
+}
+
+.place-status {
+  position: absolute;
+  z-index: 3;
+  top: 3.5rem;
+  right: 50px;
+  margin: 0;
+  max-width: min(100% - 4rem, 24rem);
+  padding: 0.4rem 0.65rem;
+  border-radius: 8px;
+  border: 1px solid rgb(155 176 154 / 35%);
+  background: rgb(18 22 28 / 90%);
+  font-size: 0.8rem;
+  line-height: 1.35;
+}
+
+.place-ok {
+  color: #c4d4a8;
+}
+
+.place-error {
+  color: #e8b4b4;
+  border-color: rgb(200 120 120 / 45%);
 }
 
 .empty-state {

@@ -1,29 +1,40 @@
 <script setup lang="ts">
 import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
+import type { MapPoi } from '~/types/poi'
 import type { MapRoute } from '~/types/route'
+import { poisToGeoJson } from '~/utils/poisGeoJson'
 import { routesToGeoJson } from '~/utils/routesGeoJson'
 
 const ROUTES_SOURCE_ID = 'routes'
 const ROUTES_LAYER_ID = 'routes-line'
 const ROUTES_HIT_LAYER_ID = 'routes-hit'
+const POIS_SOURCE_ID = 'pois'
+const POIS_LAYER_ID = 'pois-circle'
+const POIS_HIT_LAYER_ID = 'pois-hit'
 const OPENFREEMAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty'
 
 const props = withDefaults(
   defineProps<{
     routes?: MapRoute[]
+    pois?: MapPoi[]
     country?: string | null
     region?: string | null
+    pinDropActive?: boolean
   }>(),
   {
     routes: () => [],
+    pois: () => [],
     country: null,
     region: null,
+    pinDropActive: false,
   },
 )
 
 const emit = defineEmits<{
   select: [routeId: string]
+  'select-poi': [poiId: string]
+  place: [coords: { lng: number; lat: number }]
 }>()
 
 const container = ref<HTMLElement | null>(null)
@@ -35,6 +46,13 @@ const syncRoutes = () => {
 
   const source = map.getSource(ROUTES_SOURCE_ID) as maplibregl.GeoJSONSource
   source.setData(routesToGeoJson(props.routes))
+}
+
+const syncPois = () => {
+  if (!map?.getSource(POIS_SOURCE_ID)) return
+
+  const source = map.getSource(POIS_SOURCE_ID) as maplibregl.GeoJSONSource
+  source.setData(poisToGeoJson(props.pois))
 }
 
 const zoomToPlace = async () => {
@@ -63,6 +81,7 @@ const zoomToPlace = async () => {
 }
 
 const onRouteClick = (event: maplibregl.MapLayerMouseEvent) => {
+  if (props.pinDropActive) return
   const feature = event.features?.[0]
   const routeId = feature?.properties?.id
   if (typeof routeId === 'string' && routeId) {
@@ -70,26 +89,64 @@ const onRouteClick = (event: maplibregl.MapLayerMouseEvent) => {
   }
 }
 
-const onRouteEnter = () => {
+const onPoiClick = (event: maplibregl.MapLayerMouseEvent) => {
+  if (props.pinDropActive) return
+  const feature = event.features?.[0]
+  const poiId = feature?.properties?.id
+  if (typeof poiId === 'string' && poiId) {
+    emit('select-poi', poiId)
+  }
+}
+
+const onFeatureEnter = () => {
+  if (props.pinDropActive) return
   if (map) map.getCanvas().style.cursor = 'pointer'
 }
 
-const onRouteLeave = () => {
+const onFeatureLeave = () => {
+  if (props.pinDropActive) {
+    if (map) map.getCanvas().style.cursor = 'crosshair'
+    return
+  }
   if (map) map.getCanvas().style.cursor = ''
+}
+
+const onMapPlaceClick = (event: maplibregl.MapMouseEvent) => {
+  if (!props.pinDropActive) return
+  emit('place', { lng: event.lngLat.lng, lat: event.lngLat.lat })
+}
+
+const syncPinDropCursor = () => {
+  if (!map) return
+  map.getCanvas().style.cursor = props.pinDropActive ? 'crosshair' : ''
 }
 
 const bindRouteInteractions = () => {
   if (!map) return
   map.on('click', ROUTES_HIT_LAYER_ID, onRouteClick)
-  map.on('mouseenter', ROUTES_HIT_LAYER_ID, onRouteEnter)
-  map.on('mouseleave', ROUTES_HIT_LAYER_ID, onRouteLeave)
+  map.on('mouseenter', ROUTES_HIT_LAYER_ID, onFeatureEnter)
+  map.on('mouseleave', ROUTES_HIT_LAYER_ID, onFeatureLeave)
 }
 
 const unbindRouteInteractions = () => {
   if (!map) return
   map.off('click', ROUTES_HIT_LAYER_ID, onRouteClick)
-  map.off('mouseenter', ROUTES_HIT_LAYER_ID, onRouteEnter)
-  map.off('mouseleave', ROUTES_HIT_LAYER_ID, onRouteLeave)
+  map.off('mouseenter', ROUTES_HIT_LAYER_ID, onFeatureEnter)
+  map.off('mouseleave', ROUTES_HIT_LAYER_ID, onFeatureLeave)
+}
+
+const bindPoiInteractions = () => {
+  if (!map) return
+  map.on('click', POIS_HIT_LAYER_ID, onPoiClick)
+  map.on('mouseenter', POIS_HIT_LAYER_ID, onFeatureEnter)
+  map.on('mouseleave', POIS_HIT_LAYER_ID, onFeatureLeave)
+}
+
+const unbindPoiInteractions = () => {
+  if (!map) return
+  map.off('click', POIS_HIT_LAYER_ID, onPoiClick)
+  map.off('mouseenter', POIS_HIT_LAYER_ID, onFeatureEnter)
+  map.off('mouseleave', POIS_HIT_LAYER_ID, onFeatureLeave)
 }
 
 const ensureRoutesLayer = () => {
@@ -138,6 +195,46 @@ const ensureRoutesLayer = () => {
   bindRouteInteractions()
 }
 
+const ensurePoisLayer = () => {
+  if (!map) return
+
+  if (map.getSource(POIS_SOURCE_ID)) {
+    syncPois()
+    return
+  }
+
+  map.addSource(POIS_SOURCE_ID, {
+    type: 'geojson',
+    data: poisToGeoJson(props.pois),
+  })
+
+  map.addLayer({
+    id: POIS_LAYER_ID,
+    type: 'circle',
+    source: POIS_SOURCE_ID,
+    paint: {
+      'circle-radius': 7,
+      'circle-color': '#c4d4a8',
+      'circle-stroke-width': 2,
+      'circle-stroke-color': '#1a2332',
+      'circle-opacity': 0.95,
+    },
+  })
+
+  map.addLayer({
+    id: POIS_HIT_LAYER_ID,
+    type: 'circle',
+    source: POIS_SOURCE_ID,
+    paint: {
+      'circle-radius': 16,
+      'circle-color': '#000000',
+      'circle-opacity': 0,
+    },
+  })
+
+  bindPoiInteractions()
+}
+
 onMounted(async () => {
   await nextTick()
   if (!container.value) return
@@ -155,6 +252,9 @@ onMounted(async () => {
     mapReady = true
     map?.resize()
     ensureRoutesLayer()
+    ensurePoisLayer()
+    map?.on('click', onMapPlaceClick)
+    syncPinDropCursor()
     void zoomToPlace()
   })
 
@@ -172,6 +272,21 @@ watch(
 )
 
 watch(
+  () => props.pois,
+  () => {
+    syncPois()
+  },
+  { deep: true },
+)
+
+watch(
+  () => props.pinDropActive,
+  () => {
+    syncPinDropCursor()
+  },
+)
+
+watch(
   () => [props.country, props.region] as const,
   () => {
     void zoomToPlace()
@@ -180,6 +295,8 @@ watch(
 
 onBeforeUnmount(() => {
   unbindRouteInteractions()
+  unbindPoiInteractions()
+  map?.off('click', onMapPlaceClick)
   map?.remove()
   map = null
   mapReady = false

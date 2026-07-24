@@ -7,6 +7,7 @@ import { serverSupabaseUser } from '#supabase/server'
  */
 const AUTH_REQUIRED_PREFIXES = [
   '/api/gpx',
+  '/api/poi',
   '/api/images',
   '/api/maps',
 ] as const

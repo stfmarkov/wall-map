@@ -3,14 +3,19 @@ withDefaults(
   defineProps<{
     username?: string | null
     showEditProfile?: boolean
+    showDropPin?: boolean
+    pinDropActive?: boolean
   }>(),
   {
     showEditProfile: false,
+    showDropPin: false,
+    pinDropActive: false,
   },
 )
 
 const emit = defineEmits<{
   uploaded: [route: { id: string; name: string; distance_m: number | null }]
+  'toggle-pin-drop': []
 }>()
 
 const user = useSupabaseUser()
@@ -74,6 +79,12 @@ const onGpxSelected = async (event: Event) => {
     uploading.value = false
   }
 }
+
+const togglePinDrop = () => {
+  uploadMessage.value = ''
+  uploadError.value = ''
+  emit('toggle-pin-drop')
+}
 </script>
 
 <template>
@@ -100,6 +111,16 @@ const onGpxSelected = async (event: Event) => {
         >
           {{ uploading ? 'Uploading…' : 'Upload GPX' }}
         </button>
+        <button
+          v-if="showDropPin"
+          type="button"
+          class="bar-btn"
+          :class="{ 'bar-btn-active': pinDropActive }"
+          :aria-pressed="pinDropActive"
+          @click="togglePinDrop"
+        >
+          {{ pinDropActive ? 'Cancel pin' : 'Drop pin' }}
+        </button>
         <NuxtLink v-if="showEditProfile" to="/profile" class="bar-link">Edit profile</NuxtLink>
         <UserAvatarLink />
         <button
@@ -116,6 +137,9 @@ const onGpxSelected = async (event: Event) => {
 
     <p v-if="uploadError" class="status status-error" role="status">{{ uploadError }}</p>
     <p v-else-if="uploadMessage" class="status status-ok" role="status">{{ uploadMessage }}</p>
+    <p v-else-if="pinDropActive && showDropPin" class="status status-ok" role="status">
+      Click the map to place a point of interest
+    </p>
   </header>
 </template>
 
@@ -212,6 +236,12 @@ const onGpxSelected = async (event: Event) => {
 .bar-link:hover {
   border-color: #9bb09a;
   background: rgb(18 22 28 / 75%);
+}
+
+.bar-btn-active {
+  border-color: #c4d4a8;
+  background: rgb(40 52 42 / 85%);
+  color: #c4d4a8;
 }
 
 .bar-btn:disabled {
