@@ -10,4 +10,6 @@ export type MapRoute = {
   region: string | null
   created_at: string
   geometry: LineString
+  /** Present when loaded via get_map_route (deep link). */
+  owner_id?: string
 }

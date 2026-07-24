@@ -80,6 +80,69 @@ export const useMapWallStore = defineStore('mapWall', () => {
     await loadWall(ownerId.value)
   }
 
+  /**
+   * Load one route by id into `routes` (for detail/edit deep links).
+   * No-op if already present. Sets `ownerId` from the row when unset.
+   */
+  const fetchRouteById = async (routeId: string) => {
+    if (!routeId) return null
+
+    const existing = routes.value.find((entry) => entry.id === routeId)
+    if (existing) return existing
+
+    const { data, error: queryError } = await supabase.rpc('get_map_route', {
+      p_route_id: routeId,
+    })
+
+    if (queryError) throw queryError
+
+    const row = data?.[0]
+    if (!row) return null
+
+    const mapped = toMapRoute(row)
+    if (!mapped) return null
+
+    routes.value = [...routes.value, mapped]
+
+    if (!ownerId.value && mapped.owner_id) {
+      ownerId.value = mapped.owner_id
+    }
+
+    return mapped
+  }
+
+  const ensureRouteLoaded = async (routeId: string) => {
+    if (routes.value.some((entry) => entry.id === routeId)) return
+    await fetchRouteById(routeId)
+  }
+
+  const updateRouteMeta = async (
+    routeId: string,
+    patch: {
+      name: string
+      description: string | null
+    },
+  ) => {
+    const { error: updateError } = await supabase
+      .from('routes')
+      .update({
+        name: patch.name,
+        description: patch.description,
+      })
+      .eq('id', routeId)
+
+    if (updateError) throw updateError
+
+    const index = routes.value.findIndex((entry) => entry.id === routeId)
+    if (index === -1) return
+
+    routes.value[index] = {
+      ...routes.value[index],
+      name: patch.name,
+      description: patch.description,
+    } as MapRoute
+  }
+
   return {
     ownerId,
     profile,
@@ -93,5 +156,8 @@ export const useMapWallStore = defineStore('mapWall', () => {
     fetchRoutes,
     refreshRoutes,
     refresh,
+    fetchRouteById,
+    ensureRouteLoaded,
+    updateRouteMeta,
   }
 })

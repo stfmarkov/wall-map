@@ -17,6 +17,7 @@ export const toMapRoute = (row: {
   region: string | null
   created_at: string
   geometry: Json
+  owner_id?: string
 }): MapRoute | null => {
   if (!isLineString(row.geometry)) return null
   return {
@@ -28,6 +29,7 @@ export const toMapRoute = (row: {
     region: row.region,
     created_at: row.created_at,
     geometry: row.geometry,
+    ...(row.owner_id ? { owner_id: row.owner_id } : {}),
   }
 }
 

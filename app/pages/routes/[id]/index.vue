@@ -2,10 +2,17 @@
 import { formatDistanceKm } from '~/utils/mapRoute'
 
 const route = useRoute()
+const user = useSupabaseUser()
 const mapWall = useMapWallStore()
-const { routes, ownerId } = storeToRefs(mapWall)
+const { routes, ownerId, isOwner } = storeToRefs(mapWall)
 
 const routeId = computed(() => String(route.params.id ?? ''))
+
+await mapWall.ensureRouteLoaded(routeId.value)
+
+watch(routeId, (id) => {
+  void mapWall.ensureRouteLoaded(id)
+})
 
 const mapRoute = computed(() =>
   routes.value.find((entry) => entry.id === routeId.value) ?? null,
@@ -15,7 +22,18 @@ const mapRoutes = computed(() => (mapRoute.value ? [mapRoute.value] : []))
 
 const distanceLabel = computed(() => formatDistanceKm(mapRoute.value?.distance_m))
 
-const backPath = computed(() => (ownerId.value ? `/users/${ownerId.value}` : '/'))
+const backPath = computed(() => {
+  const owner = mapRoute.value?.owner_id || ownerId.value
+  return owner ? `/users/${owner}` : '/'
+})
+
+const editPath = computed(() => `/routes/${routeId.value}/edit`)
+
+const canEdit = computed(() => {
+  if (!user.value || !mapRoute.value) return false
+  if (mapRoute.value.owner_id) return user.value.sub === mapRoute.value.owner_id
+  return isOwner.value
+})
 </script>
 
 <template>
@@ -32,9 +50,9 @@ const backPath = computed(() => (ownerId.value ? `/users/${ownerId.value}` : '/'
     <section class="details-pane" aria-label="Route details">
       <div class="details-header">
         <NuxtLink :to="backPath" class="back-link">← Back</NuxtLink>
-        <button type="button" class="edit-btn">
+        <NuxtLink v-if="canEdit" :to="editPath" class="edit-btn">
           Edit
-        </button>
+        </NuxtLink>
       </div>
 
       <template v-if="mapRoute">
@@ -59,7 +77,7 @@ const backPath = computed(() => (ownerId.value ? `/users/${ownerId.value}` : '/'
       </template>
 
       <p v-else class="placeholder">
-        Route not in memory — open it from the map wall.
+        Route not found or not available.
       </p>
     </section>
   </div>
@@ -117,6 +135,7 @@ const backPath = computed(() => (ownerId.value ? `/users/${ownerId.value}` : '/'
   font: inherit;
   font-size: 0.85rem;
   cursor: pointer;
+  text-decoration: none;
 }
 
 .edit-btn:hover {

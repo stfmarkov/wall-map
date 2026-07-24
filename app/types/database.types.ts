@@ -450,6 +450,20 @@ export type Database = {
         Returns: boolean
       }
       geomfromewkt: { Args: { "": string }; Returns: unknown }
+      get_map_route: {
+        Args: { p_route_id: string }
+        Returns: {
+          country: string
+          created_at: string
+          description: string
+          distance_m: number
+          geometry: Json
+          id: string
+          name: string
+          owner_id: string
+          region: string
+        }[]
+      }
       gettransactionid: { Args: never; Returns: unknown }
       list_map_routes: {
         Args: { p_owner_id: string }
