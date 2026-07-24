@@ -108,6 +108,15 @@ Do not skip PostGIS or RLS setup — they are harder to bolt on later.
 
 
 
+## Later — Route status & visibility
+
+Mark routes as **plan** or **done**, and **personal** or **public**, so users can sketch future trips and keep private tracks off visitors' views. See [Project Goals — Route](./project-goals.md#route) and [Filters](./project-goals.md#filters).
+
+- [ ] `routes` columns: `status` (`plan` | `done`), `visibility` (`personal` | `public`); sensible defaults (e.g. done + public)
+- [ ] RLS: visitors see a route only if owner profile is public **and** route visibility is public; owner always sees own routes (including personal)
+- [ ] Edit UI: set status and visibility on create/edit / route detail
+- [ ] Map filter: plan only / done only / both (own map); visitors never see personal routes
+
 ## Later — Travelogues
 
 Rich trip narratives as a **separate collection**, linked to routes by id (not embedded on `routes`). After core map/route/POI flows are solid.

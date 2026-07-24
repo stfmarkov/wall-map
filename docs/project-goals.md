@@ -31,11 +31,17 @@ Every route has at minimum:
 - **Track geometry** — the path drawn on the map (from GPX)
 - **Owner** — the user who created it
 
+Routes also have (planned; not required for early GPX work):
+
+- **Status** — **done** (completed / already traveled) or **plan** (future intention). Plans let users sketch upcoming trips on the map without mixing them with finished rides.
+- **Visibility** — **public** or **personal**. A **personal** route is visible only to its owner, even when the owner's profile is public. A **public** route is visible to visitors only when the owner's profile is public (same gate as today's profile-level visibility).
+
 Routes can be **edited** after creation:
 
 - Replace or extend track data by uploading a new GPX file
 - Add or update a **note / description**
 - Attach **images** (photos from the trip, scenery, etc.)
+- Set **status** (plan vs done) and **visibility** (personal vs public)
 
 ### Point of interest
 
@@ -96,9 +102,10 @@ Users need to slice large route collections. Planned filter dimensions include:
 - **Region** (state, province, area, etc.)
 - **Off-road inclusion** (e.g. show only off-road routes, or include/exclude paved segments)
 - **Content type** — routes only, points of interest only, or both
+- **Route status** — plan only, done only, or both (makes it easy to organize future trips vs completed routes)
 - Additional filters TBD (activity type, date, distance, tags)
 
-Filters apply on the profile map and when browsing another user's map.
+Filters apply on the profile map and when browsing another user's map. Visitors only ever see routes that are **public** (and whose owner profile is public); personal routes stay on the owner's map alone.
 
 ### Social: visiting other maps
 
@@ -188,7 +195,8 @@ These are goals, not commitments for v1. They help keep early builds focused:
 - Real-time GPS recording in the app
 - Turn-by-turn navigation
 - Commercial route marketplace
-- Detailed permissions model (unless needed for MVP)
+- Detailed permissions model beyond profile public/private and per-route personal/public (unless needed for MVP)
+- **Route status & per-route visibility** — plan vs done; personal vs public routes; filter by status (see Route and Filters above)
 - **Travelogues** — rich trip narratives as a separate collection linked to routes by id (not stored on the route row; route photos stay on `route_images`)
 
 ## Success criteria
