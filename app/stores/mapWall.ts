@@ -1,36 +1,7 @@
-import type { LineString } from 'geojson'
-import type { Database, Json } from '~/types/database.types'
+import type { Database } from '~/types/database.types'
 import type { PublicProfile } from '~/types/profile'
 import type { MapRoute } from '~/types/route'
-
-const isLineString = (value: Json): value is LineString => {
-  if (!value || typeof value !== 'object' || Array.isArray(value)) return false
-  const geom = value as { type?: unknown; coordinates?: unknown }
-  return geom.type === 'LineString' && Array.isArray(geom.coordinates)
-}
-
-const toMapRoute = (row: {
-  id: string
-  name: string
-  description: string | null
-  distance_m: number | null
-  country: string | null
-  region: string | null
-  created_at: string
-  geometry: Json
-}): MapRoute | null => {
-  if (!isLineString(row.geometry)) return null
-  return {
-    id: row.id,
-    name: row.name,
-    description: row.description,
-    distance_m: row.distance_m,
-    country: row.country,
-    region: row.region,
-    created_at: row.created_at,
-    geometry: row.geometry,
-  }
-}
+import { toMapRoute } from '~/utils/mapRoute'
 
 export const useMapWallStore = defineStore('mapWall', () => {
   const user = useSupabaseUser()

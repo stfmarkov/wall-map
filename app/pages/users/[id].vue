@@ -29,6 +29,10 @@ const emptyCopy = computed(() =>
 const onRouteUploaded = async () => {
   await mapWall.refreshRoutes()
 }
+
+const onRouteSelect = (id: string) => {
+  void navigateTo(`/routes/${id}`)
+}
 </script>
 
 <template>
@@ -76,7 +80,7 @@ const onRouteUploaded = async () => {
 
     <div class="map-slot">
       <ClientOnly>
-        <MapView :routes="routes" />
+        <MapView :routes="routes" @select="onRouteSelect" />
         <template #fallback>
           <div class="map-fallback">Loading map…</div>
         </template>
