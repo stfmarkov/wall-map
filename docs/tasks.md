@@ -39,7 +39,7 @@ Do not skip PostGIS or RLS setup — they are harder to bolt on later.
 - [x] RLS: owner CRUD; others read if owner profile is public
 - [x] Storage bucket `gpx` + upload policy (private; read for owner or public profiles; trailmates later)
 - [x] Nitro route: accept GPX upload → parse with `@tmcw/togeojson` → validate → store geometry + original file (`POST /api/gpx`)
-- [ ] Nitro route or DB function: reverse-geocode start point → store country/region
+- [x] Nitro route: reverse-geocode start point on GPX upload → store country/region (Nominatim; nulls if lookup fails)
 - [x] UI: “Upload GPX” in map top bar → file picker → save (name from filename for now)
 - [x] Display routes on profile map (GeoJSON source + line layer)
 - [ ] Route detail page: full map, description, metadata

@@ -1,7 +1,8 @@
 import { randomUUID } from 'node:crypto'
 import { serverSupabaseClient } from '#supabase/server'
 import type { Database } from '~/types/database.types'
-import { nameFromGpxFilename, parseGpxToTrack } from '../../utils/gpx.ts'
+import { nameFromGpxFilename, parseGpxToTrack } from '../../utils/gpx'
+import { reverseGeocode } from '../../utils/reverseGeocode'
 
 const MAX_GPX_BYTES = 15 * 1024 * 1024
 
@@ -61,6 +62,17 @@ export default defineEventHandler(async (event) => {
     })
   }
 
+  let country: string | null = null
+  let region: string | null = null
+  const startPosition = track.coordinates[0]
+
+  if(startPosition) {
+    const [startLon, startLat] = startPosition as [number, number]
+    const place = await reverseGeocode(startLon, startLat)
+    country = place.country
+    region = place.region
+  }
+
   const { data: route, error: insertError } = await supabase
     .from('routes')
     .insert({
@@ -70,8 +82,10 @@ export default defineEventHandler(async (event) => {
       geom: track.ewkt,
       gpx_path: gpxPath,
       distance_m: track.distanceM,
+      country,
+      region,
     })
-    .select('id, name, distance_m, gpx_path, created_at')
+    .select('id, name, distance_m, gpx_path, country, region, created_at')
     .single()
 
   if (insertError) {
