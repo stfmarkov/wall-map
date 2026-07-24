@@ -17,6 +17,7 @@ export const toMapRoute = (row: {
   region: string | null
   created_at: string
   geometry: Json
+  gpx_path?: string | null
   owner_id?: string
 }): MapRoute | null => {
   if (!isLineString(row.geometry)) return null
@@ -27,6 +28,7 @@ export const toMapRoute = (row: {
     distance_m: row.distance_m,
     country: row.country,
     region: row.region,
+    gpx_path: row.gpx_path ?? null,
     created_at: row.created_at,
     geometry: row.geometry,
     ...(row.owner_id ? { owner_id: row.owner_id } : {}),
@@ -37,4 +39,15 @@ export const formatDistanceKm = (distanceM: number | null | undefined) => {
   if (distanceM == null || Number.isNaN(distanceM)) return null
   const km = distanceM / 1000
   return `${km < 10 ? km.toFixed(1) : Math.round(km)} km`
+}
+
+export const gpxDownloadFilename = (routeName: string) => {
+  const base = routeName
+    .trim()
+    .replace(/[^\w\s-]+/g, '')
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, '')
+    .slice(0, 80)
+  return `${base || 'route'}.gpx`
 }

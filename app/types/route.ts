@@ -8,6 +8,7 @@ export type MapRoute = {
   distance_m: number | null
   country: string | null
   region: string | null
+  gpx_path: string | null
   created_at: string
   geometry: LineString
   /** Present when loaded via get_map_route (deep link). */

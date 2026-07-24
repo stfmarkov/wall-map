@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { formatDistanceKm } from '~/utils/mapRoute'
+import type { Database } from '~/types/database.types'
+import { formatDistanceKm, gpxDownloadFilename } from '~/utils/mapRoute'
 
 const route = useRoute()
 const user = useSupabaseUser()
+const supabase = useSupabaseClient<Database>()
 const mapWall = useMapWallStore()
 const { routes, ownerId, isOwner } = storeToRefs(mapWall)
 
@@ -34,6 +36,39 @@ const canEdit = computed(() => {
   if (mapRoute.value.owner_id) return user.value.sub === mapRoute.value.owner_id
   return isOwner.value
 })
+
+const canDownload = computed(() => Boolean(mapRoute.value?.gpx_path))
+const downloading = ref(false)
+const downloadError = ref('')
+
+const downloadGpx = async () => {
+  const current = mapRoute.value
+  if (!current?.gpx_path) return
+
+  downloading.value = true
+  downloadError.value = ''
+
+  try {
+    const { data, error } = await supabase.storage
+      .from('gpx')
+      .download(current.gpx_path)
+
+    if (error) throw error
+
+    const url = URL.createObjectURL(data)
+    const anchor = document.createElement('a')
+    anchor.href = url
+    anchor.download = gpxDownloadFilename(current.name)
+    anchor.click()
+    URL.revokeObjectURL(url)
+  }
+  catch (err) {
+    downloadError.value = err instanceof Error ? err.message : 'Download failed'
+  }
+  finally {
+    downloading.value = false
+  }
+}
 </script>
 
 <template>
@@ -50,9 +85,20 @@ const canEdit = computed(() => {
     <section class="details-pane" aria-label="Route details">
       <div class="details-header">
         <NuxtLink :to="backPath" class="back-link">← Back</NuxtLink>
-        <NuxtLink v-if="canEdit" :to="editPath" class="edit-btn">
-          Edit
-        </NuxtLink>
+        <div class="header-actions">
+          <button
+            v-if="canDownload"
+            type="button"
+            class="edit-btn"
+            :disabled="downloading"
+            @click="downloadGpx"
+          >
+            {{ downloading ? 'Downloading…' : 'Download GPX' }}
+          </button>
+          <NuxtLink v-if="canEdit" :to="editPath" class="edit-btn">
+            Edit
+          </NuxtLink>
+        </div>
       </div>
 
       <template v-if="mapRoute">
@@ -74,6 +120,7 @@ const canEdit = computed(() => {
         </dl>
         <p v-if="mapRoute.description" class="description">{{ mapRoute.description }}</p>
         <p v-else class="description muted">No description yet.</p>
+        <p v-if="downloadError" class="download-error" role="alert">{{ downloadError }}</p>
       </template>
 
       <p v-else class="placeholder">
@@ -114,6 +161,13 @@ const canEdit = computed(() => {
   gap: 1rem;
 }
 
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
 .back-link {
   font-size: 0.85rem;
   color: #9bb09a;
@@ -138,9 +192,20 @@ const canEdit = computed(() => {
   text-decoration: none;
 }
 
-.edit-btn:hover {
+.edit-btn:hover:not(:disabled) {
   border-color: #9bb09a;
   background: rgb(18 22 28 / 75%);
+}
+
+.edit-btn:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.download-error {
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+  color: #e8a090;
 }
 
 .title {

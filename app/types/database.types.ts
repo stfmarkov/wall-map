@@ -458,6 +458,7 @@ export type Database = {
           description: string
           distance_m: number
           geometry: Json
+          gpx_path: string
           id: string
           name: string
           owner_id: string
@@ -473,6 +474,7 @@ export type Database = {
           description: string
           distance_m: number
           geometry: Json
+          gpx_path: string
           id: string
           name: string
           region: string

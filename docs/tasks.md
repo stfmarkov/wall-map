@@ -43,7 +43,7 @@ Do not skip PostGIS or RLS setup — they are harder to bolt on later.
 - [x] UI: “Upload GPX” in map top bar → file picker → save (name from filename for now)
 - [x] Display routes on profile map (GeoJSON source + line layer)
 - [x] Route detail page: full map, description, metadata (from store)
-- [ ] GPX export (download original or regenerated from stored geometry)
+- [x] GPX export (download original from Storage)
 - [x] Edit route: update name, description (country/region from geocode only; GPX replace later)
 
 
