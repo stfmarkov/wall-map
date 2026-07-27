@@ -10,6 +10,7 @@ Wall Map is a web app for collecting, sharing, and exploring personal route maps
 | [Tech Stack](./tech-stack.md) | Technology choices, architecture, and hosting |
 | [Build Tasks](./tasks.md) | Phased implementation checklist |
 | [Dev Flows](./dev-flows.md) | Repeatable CLI workflows (migrations, types, env, Resend/OTP email setup) |
+| [Google Maps → GPX](./google-maps-to-gpx.md) | Research notes for converting Maps links to GPX / coordinates (Phase 7) |
 
 ## Quick summary
 

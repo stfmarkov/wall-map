@@ -91,7 +91,10 @@ Do not skip PostGIS or RLS setup — they are harder to bolt on later.
 
 ## Phase 7 — Google Maps links (v1, after GPX / pin-drop are stable)
 
+Research notes: [Google Maps → GPX](./google-maps-to-gpx.md).
+
 - [ ] Research reliable extraction from Google Maps share URLs (routes and places)
+
 - [ ] Nitro route: accept route URL → produce GPX → same pipeline as file upload
 - [ ] Nitro route: accept place / share URL → coordinate → same pipeline as pin-drop POI
 - [ ] UI: “Paste Google Maps link” on add-route and add-POI flows
@@ -135,5 +138,6 @@ Rich trip narratives as a **separate collection**, linked to routes by id (not e
 
 - [Tech Stack](./tech-stack.md) — technology choices and architecture
 - [Project Goals](./project-goals.md) — product vision, features, and user flows
+- [Google Maps → GPX](./google-maps-to-gpx.md) — research for Maps link import (Phase 7)
 - [README](./README.md) — documentation index
 
