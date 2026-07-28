@@ -25,10 +25,10 @@ Do not skip PostGIS or RLS setup — they are harder to bolt on later.
 - [x] `profiles` table + trigger to create profile on signup
 - [x] RLS: users can read/update their own profile; public read for basic profile fields (for visiting maps)
 - [x] Login / logout (`/login` OTP flow; sign out on map chrome) — signup is the same OTP path
-- [x] Auth middleware: page (`auth` / `guest`) + Nitro (`server/middleware/auth.ts` for `/api/gpx`, `/api/images`, `/api/maps`)
+- [x] Auth middleware: page (`auth` / `guest`) + Nitro (`server/middleware/auth.ts` for `/api/gpx`, `/api/photos`, `/api/avatars`, `/api/maps`)
 - [x] Profile map shell at `/users/[id]` (empty state OK); `/users/me` redirects to the signed-in user’s map
-- [x] Edit profile at `/profile` — display name, optional username, bio, public flag, avatar upload
-- [x] Storage bucket `avatars` (public read; owner write) + RLS policies
+- [x] Edit profile at `/profile` — display name, optional username, bio, public flag, avatar upload (`POST /api/avatars` → `sharp` 512² cover AVIF)
+- [x] Storage bucket `avatars` (public read; owner write; AVIF stored) + RLS policies
 - [x] Shared map chrome (`MapTopBar`, avatar link) and auth UI pieces (`AuthShell`, `UiField`, etc.)
 
 
@@ -61,8 +61,8 @@ Do not skip PostGIS or RLS setup — they are harder to bolt on later.
 
 ## Phase 4 — Images
 
-- [ ] Storage bucket `photos` + RLS policies
-- [ ] Nitro upload route: accept image → `sharp` display + thumbnail variants → Storage
+- [x] Storage bucket `photos` + RLS policies (private; read for owner or public profiles — same pattern as `gpx`)
+- [x] Nitro upload route: `POST /api/photos` → `sharp` display (max edge 1920) + thumb (max edge 400), both AVIF → Storage
 - [ ] `route_images` / `poi_images` tables or JSON array on parent — pick one, stay consistent
 - [ ] Attach photos on create/edit flows
 - [ ] Image gallery on detail pages (display-sized files)

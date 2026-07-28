@@ -36,6 +36,7 @@ Migrations are the source of truth for the database. Do not rely on one-off dash
 
 - The CLI must be logged in (`npx supabase login`) and the repo linked (`npx supabase link --project-ref <ref>`).
 - Prefer migrations over editing the dashboard for anything that should be reproducible (including Storage buckets and storage RLS policies).
+- Do not edit a migration file after it has been applied (`db push`). Add a follow-up migration (e.g. `update storage.buckets …`) instead — changing applied files causes checksum mismatches.
 - Do not hand-edit generated table types in `database.types.ts` — regenerate after schema changes.
 
 ---

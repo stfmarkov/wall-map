@@ -14,7 +14,7 @@ Technology choices and architecture for Wall Map. For the phased implementation 
 | **Database** | Supabase (PostgreSQL + **PostGIS**) | Users, routes, POIs, trailmates, spatial queries |
 | **Auth** | Supabase Auth + email OTP | Passwordless sign-in via 6-digit code; Resend SMTP for delivery |
 | **Auth email** | Resend (SMTP) | Required for custom OTP templates and sending beyond team/test limits |
-| **File storage** | Supabase Storage + Nitro/`sharp` | GPX originals; photos stored in Storage, resized/thumbnailed with `sharp` on upload |
+| **File storage** | Supabase Storage + Nitro/`sharp` | GPX originals; avatars and photos resized to AVIF with `sharp` on upload |
 | **Nuxt ↔ Supabase** | `@nuxtjs/supabase` | Auth middleware, composables, SSR cookie handling |
 | **GPX parsing** | `@tmcw/togeojson` | GPX → GeoJSON for map display and storage |
 | **Geo utilities** | `@turf/turf` | Distance, bounding box, simplify, spatial helpers |
@@ -32,7 +32,7 @@ Browser (Nuxt client)
 Nitro server routes
   ├── GPX import & validation
   ├── Google Maps → GPX / place → POI conversion (v1, after upload + pin-drop work)
-  ├── Image upload (`sharp` display + thumbnail → Storage)
+  ├── Image upload (`sharp` → AVIF; photos display + thumb, avatars 512²)
   ├── Reverse geocoding (country/region on import)
   └── Any logic requiring secrets or heavy processing
 
@@ -74,14 +74,21 @@ Alternatives considered and rejected for v1: magic link; email/password.
 
 ### Images (v1)
 
-**Decision: Supabase Storage + Nitro/`sharp` transforms.**
+**Decision: Supabase Storage + Nitro/`sharp` transforms, stored as AVIF.**
 
-Photos live in a Supabase Storage bucket; upload goes through a Nitro route that uses `sharp` to produce a display-sized image and a thumbnail, then stores both (and records paths on the route/POI).
+All user images go through Nitro + `sharp` and are written as AVIF for storage savings (JPEG/PNG/WebP/GIF/AVIF accepted as input). Larger/heavier showcase formats can wait until photography use needs them.
 
-1. One Storage bucket (e.g. `photos`) with RLS: users can write only under their own `{user_id}/` prefix.
-2. Nitro upload handler: accept image → `sharp` resize (e.g. max edge ~1920px for gallery + a small thumb for map hover) → upload variants to Storage.
-3. Store Storage paths (and sort order) on `route_images` / `poi_images` (or equivalent).
+**Photos** (`photos` bucket, private; same read rules as `gpx`: owner, or anyone when owner profile is public):
+
+1. RLS: users write only under their own `{user_id}/` prefix.
+2. `POST /api/photos`: accept image → `sharp` resize preserving aspect ratio (`fit: 'inside'`) → store `{userId}/{photoId}/display.avif` (max edge 1920) and `thumb.avif` (max edge 400).
+3. Store Storage paths (and sort order) on `route_images` / `poi_images` (or equivalent) — not wired yet.
 4. Map hover previews use the thumbnail; detail galleries use the display-sized file.
+
+**Avatars** (`avatars` bucket, public read; owner write under `{userId}/`):
+
+1. `POST /api/avatars`: accept image → `sharp` 512×512 cover crop → `{userId}/avatar.avif`.
+2. Profile page uploads via that route (not direct client → Storage).
 
 Alternatives considered and rejected for v1: direct client upload with CSS-only thumbs; Supabase Image Transformations (plan-dependent).
 
@@ -89,13 +96,14 @@ Alternatives considered and rejected for v1: direct client upload with CSS-only 
 
 ## Dependencies (npm)
 
-Core packages to add as we build:
+Core packages:
 
 ```
 @nuxtjs/supabase
 maplibre-gl
 @tmcw/togeojson
 @turf/turf
+sharp
 ```
 
 Dev / tooling (add when needed):
@@ -103,7 +111,6 @@ Dev / tooling (add when needed):
 ```
 supabase (CLI — local migrations & type generation)
 zod (Nitro route input validation)
-sharp (image resize / thumbnails on upload)
 ```
 
 ---
@@ -127,9 +134,9 @@ Storage buckets:
 
 | Bucket | Contents | Access |
 |--------|----------|--------|
-| `avatars` | Profile avatar images | Public read; owner upload/update/delete under `{userId}/` |
+| `avatars` | Profile avatars (AVIF via `POST /api/avatars`) | Public read; owner upload/update/delete under `{userId}/` |
 | `gpx` | Original uploaded GPX files | Private bucket; owner write under `{userId}/`; read for owner or when owner profile is public (trailmates later) |
-| `photos` | Route and POI images | Owner write; read per visibility rules |
+| `photos` | Route/POI images (display + thumb AVIF via `POST /api/photos`) | Private; owner write under `{userId}/`; read for owner or when owner profile is public (trailmates later) |
 
 ---
 
