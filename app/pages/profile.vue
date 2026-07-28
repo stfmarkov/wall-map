@@ -61,7 +61,7 @@ const onAvatarChange = (event: Event) => {
   if (!file) return
 
   if (!file.type.startsWith('image/')) {
-    errorMessage.value = 'Choose an image file (JPEG, PNG, WebP, or GIF).'
+    errorMessage.value = 'Choose an image file (JPEG, PNG, WebP, GIF, or AVIF).'
     input.value = ''
     return
   }
@@ -76,34 +76,19 @@ const onAvatarChange = (event: Event) => {
   avatarPreview.value = URL.createObjectURL(file)
 }
 
-const extensionFor = (file: File) => {
-  const fromName = file.name.split('.').pop()?.toLowerCase()
-  if (fromName && ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(fromName)) {
-    return fromName === 'jpeg' ? 'jpg' : fromName
-  }
-
-  const map: Record<string, string> = {
-    'image/jpeg': 'jpg',
-    'image/png': 'png',
-    'image/webp': 'webp',
-    'image/gif': 'gif',
-  }
-  return map[file.type] ?? 'jpg'
-}
-
-const uploadAvatar = async (userId: string) => {
+const uploadAvatar = async () => {
   const file = avatarFile.value
   if (!file) return avatarUrl.value
 
-  const path = `${userId}/avatar.${extensionFor(file)}`
-  const { error: uploadError } = await supabase.storage
-    .from('avatars')
-    .upload(path, file, { upsert: true, contentType: file.type })
+  const body = new FormData()
+  body.append('file', file)
 
-  if (uploadError) throw uploadError
+  const result = await $fetch<{ avatar_url: string }>('/api/avatars', {
+    method: 'POST',
+    body,
+  })
 
-  const { data } = supabase.storage.from('avatars').getPublicUrl(path)
-  return `${data.publicUrl}?v=${Date.now()}`
+  return result.avatar_url
 }
 
 const saveProfile = async () => {
@@ -129,7 +114,7 @@ const saveProfile = async () => {
   pending.value = true
 
   try {
-    const nextAvatarUrl = await uploadAvatar(user.value.sub)
+    const nextAvatarUrl = await uploadAvatar()
 
     const { error } = await supabase
       .from('profiles')

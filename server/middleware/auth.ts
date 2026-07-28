@@ -8,12 +8,13 @@ import { serverSupabaseUser } from '#supabase/server'
 const AUTH_REQUIRED_PREFIXES = [
   '/api/gpx',
   '/api/poi',
-  '/api/images',
+  '/api/photos',
+  '/api/avatars',
   '/api/maps',
 ] as const
 
 /**
- * Server auth for privileged actions (GPX upload, image upload, Maps→GPX, etc.).
+ * Server auth for privileged actions (GPX upload, photo upload, Maps→GPX, etc.).
  * Skips all other paths so public reads and page SSR stay open.
  *
  * `serverSupabaseUser` returns JWT claims (`JwtPayload`), not a full `User`.

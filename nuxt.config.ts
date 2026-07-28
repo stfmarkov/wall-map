@@ -8,7 +8,7 @@ export default defineNuxtConfig({
 
   supabase: {
     // Pages: opt-in via app/middleware/auth.ts (and guest.ts on /login).
-    // API writes: server/middleware/auth.ts on /api/gpx, /api/images, /api/maps.
+    // API writes: server/middleware/auth.ts on /api/gpx, /api/photos, /api/avatars, /api/maps.
     redirect: false,
     redirectOptions: {
       login: '/login',
