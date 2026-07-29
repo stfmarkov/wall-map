@@ -5,5 +5,6 @@ export type EntityPhoto = {
   display_path: string
   thumb_path: string
   sort_order: number
-  thumbUrl: string | null
+  thumbUrl?: string | null
+  displayUrl?: string | null
 }
