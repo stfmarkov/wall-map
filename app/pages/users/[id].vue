@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import type { MapFiltersSelection } from '~/types/mapFilters'
+
 const route = useRoute()
 const mapWall = useMapWallStore()
 
@@ -10,6 +12,7 @@ const {
   error,
   isOwner,
   hasMapContent,
+  ownerId,
 } = storeToRefs(mapWall)
 
 const userId = computed(() => String(route.params.id ?? ''))
@@ -18,12 +21,39 @@ const placing = ref(false)
 const placeMessage = ref('')
 const placeError = ref('')
 
+const mapFilters = ref<MapFiltersSelection>({
+  country: null,
+  region: null,
+  contentType: 'both',
+})
+
+const filteredRoutes = computed(() => {
+  if (mapFilters.value.contentType === 'poi') return []
+  return routes.value.filter((entry) =>
+    (!mapFilters.value.country || entry.country === mapFilters.value.country)
+    && (!mapFilters.value.region || entry.region === mapFilters.value.region),
+  )
+})
+
+const filteredPois = computed(() => {
+  if (mapFilters.value.contentType === 'route') return []
+  return pois.value.filter((entry) =>
+    (!mapFilters.value.country || entry.country === mapFilters.value.country)
+    && (!mapFilters.value.region || entry.region === mapFilters.value.region),
+  )
+})
+
 await mapWall.loadWall(userId.value)
 
 watch(userId, (id) => {
   pinDropActive.value = false
   placeMessage.value = ''
   placeError.value = ''
+  mapFilters.value = {
+    country: null,
+    region: null,
+    contentType: 'both',
+  }
   void mapWall.loadWall(id)
 })
 
@@ -142,6 +172,12 @@ const onPlace = async (coords: { lng: number; lat: number }) => {
       @toggle-pin-drop="onTogglePinDrop"
     />
 
+    <MapFilters
+      v-if="ownerId"
+      v-model:filters="mapFilters"
+      :owner-id="ownerId"
+    />
+
     <p v-if="placeError" class="place-status place-error" role="status">{{ placeError }}</p>
     <p v-else-if="placeMessage" class="place-status place-ok" role="status">{{ placeMessage }}</p>
     <p v-else-if="placing" class="place-status place-ok" role="status">Saving pin…</p>
@@ -149,8 +185,8 @@ const onPlace = async (coords: { lng: number; lat: number }) => {
     <div class="map-slot">
       <ClientOnly>
         <MapView
-          :routes="routes"
-          :pois="pois"
+          :routes="filteredRoutes"
+          :pois="filteredPois"
           :pin-drop-active="pinDropActive"
           @select="onRouteSelect"
           @select-poi="onPoiSelect"
@@ -192,7 +228,7 @@ const onPlace = async (coords: { lng: number; lat: number }) => {
 .place-status {
   position: absolute;
   z-index: 3;
-  top: 3.5rem;
+  top: 7.25rem;
   right: 50px;
   margin: 0;
   max-width: min(100% - 4rem, 24rem);

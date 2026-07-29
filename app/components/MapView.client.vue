@@ -4,6 +4,7 @@ import 'maplibre-gl/dist/maplibre-gl.css'
 import type { Database } from '~/types/database.types'
 import type { MapPoi } from '~/types/poi'
 import type { MapRoute } from '~/types/route'
+import { boundsFromMapFeatures } from '~/utils/mapFeatureBounds'
 import { poisToGeoJson } from '~/utils/poisGeoJson'
 import { routesToGeoJson } from '~/utils/routesGeoJson'
 
@@ -68,6 +69,19 @@ const syncPois = () => {
 
   const source = map.getSource(POIS_SOURCE_ID) as maplibregl.GeoJSONSource
   source.setData(poisToGeoJson(props.pois))
+}
+
+const fitToFeatures = () => {
+  if (!map || !mapReady) return
+
+  const bounds = boundsFromMapFeatures(props.routes, props.pois)
+  if (!bounds) return
+
+  map.fitBounds(bounds, {
+    padding: 64,
+    duration: 450,
+    maxZoom: 14,
+  })
 }
 
 const zoomToPlace = async () => {
@@ -372,17 +386,13 @@ onMounted(async () => {
 })
 
 watch(
-  () => props.routes,
+  [() => props.routes, () => props.pois],
   () => {
     syncRoutes()
-  },
-  { deep: true },
-)
-
-watch(
-  () => props.pois,
-  () => {
     syncPois()
+    if (!props.country && !props.region) {
+      fitToFeatures()
+    }
   },
   { deep: true },
 )

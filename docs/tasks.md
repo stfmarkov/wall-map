@@ -15,7 +15,7 @@ Do not skip PostGIS or RLS setup — they are harder to bolt on later.
 - [x] Create a client-only `MapView` component with OpenFreeMap style URL
 - [x] Verify map renders locally with pan/zoom
 - [x] Set up Supabase CLI for migrations (`supabase init`, link project)
-- [x] Decide image approach: **Supabase Storage + Nitro/`sharp` transforms** (see [Tech Stack — Images](./tech-stack.md#images-v1))
+- [x] Decide image approach: **Supabase Storage + Nitro/**`sharp` **transforms** (see [Tech Stack — Images](./tech-stack.md#images-v1))
 
 
 
@@ -73,7 +73,7 @@ Do not skip PostGIS or RLS setup — they are harder to bolt on later.
 ## Phase 5 — Map UX & filters
 
 - [x] Hover preview: name, summary, thumbnail
-- [ ] Click → navigate to detail
+- [x] Click → navigate to detail
 - [ ] Filter UI: country, region, content type (routes / POIs / both)
 - [ ] Off-road filter: store a simple `tags` or `surface` field; manual tag or “TBD” default for v1
 - [ ] Fit map bounds to filtered results
@@ -120,6 +120,8 @@ Mark routes as **plan** or **done**, and **personal** or **public**, so users ca
 - [ ] RLS: visitors see a route only if owner profile is public **and** route visibility is public; owner always sees own routes (including personal)
 - [ ] Edit UI: set status and visibility on create/edit / route detail
 - [ ] Map filter: plan only / done only / both (own map); visitors never see personal routes
+
+
 
 ## Later — Travelogues
 
