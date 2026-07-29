@@ -122,45 +122,53 @@ const save = async () => {
       </template>
     </AuthShell>
 
-    <form v-else class="form" @submit.prevent="save">
-      <UiField
-        v-model="name"
-        label="Name"
-        name="name"
-        required
-        maxlength="200"
-        placeholder="Route name"
+    <template v-else>
+      <form class="form" @submit.prevent="save">
+        <UiField
+          v-model="name"
+          label="Name"
+          name="name"
+          required
+          maxlength="200"
+          placeholder="Route name"
+        />
+
+        <UiTextarea
+          v-model="description"
+          label="Description"
+          name="description"
+          maxlength="5000"
+          :rows="6"
+          placeholder="Notes about this trip…"
+        />
+
+        <p class="place-readonly">
+          <span class="place-label">Location</span>
+          <span>{{ placeLabel || '—' }}</span>
+        </p>
+
+        <p class="hint">
+          Country and region come from the GPX start point (used for map zoom). Geometry and distance stay tied to the file.
+        </p>
+
+        <UiMessage v-if="errorMessage" variant="error">{{ errorMessage }}</UiMessage>
+
+        <div class="actions">
+          <UiButton type="submit" :disabled="pending">
+            {{ pending ? 'Saving…' : 'Save' }}
+          </UiButton>
+          <UiButton type="button" variant="ghost" :disabled="pending" @click="navigateTo(detailPath)">
+            Cancel
+          </UiButton>
+        </div>
+      </form>
+
+      <EntityPhotosEditor
+        class="photos-block"
+        parent="route"
+        :parent-id="routeId"
       />
-
-      <UiTextarea
-        v-model="description"
-        label="Description"
-        name="description"
-        maxlength="5000"
-        :rows="6"
-        placeholder="Notes about this trip…"
-      />
-
-      <p class="place-readonly">
-        <span class="place-label">Location</span>
-        <span>{{ placeLabel || '—' }}</span>
-      </p>
-
-      <p class="hint">
-        Country and region come from the GPX start point (used for map zoom). Geometry and distance stay tied to the file.
-      </p>
-
-      <UiMessage v-if="errorMessage" variant="error">{{ errorMessage }}</UiMessage>
-
-      <div class="actions">
-        <UiButton type="submit" :disabled="pending">
-          {{ pending ? 'Saving…' : 'Save' }}
-        </UiButton>
-        <UiButton type="button" variant="ghost" :disabled="pending" @click="navigateTo(detailPath)">
-          Cancel
-        </UiButton>
-      </div>
-    </form>
+    </template>
   </div>
 </template>
 
@@ -228,5 +236,11 @@ const save = async () => {
   display: grid;
   gap: 0.65rem;
   margin-top: 0.35rem;
+}
+
+.photos-block {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #2a322c;
 }
 </style>

@@ -63,8 +63,8 @@ Do not skip PostGIS or RLS setup — they are harder to bolt on later.
 
 - [x] Storage bucket `photos` + RLS policies (private; read for owner or public profiles — same pattern as `gpx`)
 - [x] Nitro upload route: `POST /api/photos` → `sharp` display (max edge 1920) + thumb (max edge 400), both AVIF → Storage
-- [ ] `route_images` / `poi_images` tables or JSON array on parent — pick one, stay consistent
-- [ ] Attach photos on create/edit flows
+- [x] `route_images` / `poi_images` tables (not JSON on parent) + RLS via parent
+- [x] Attach photos on edit flows (upload + DB attach separate from name/description Save; not on create)
 - [ ] Image gallery on detail pages (display-sized files)
 - [ ] Thumbnail in map hover preview (use `sharp` thumb variant)
 

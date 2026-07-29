@@ -82,7 +82,7 @@ All user images go through Nitro + `sharp` and are written as AVIF for storage s
 
 1. RLS: users write only under their own `{user_id}/` prefix.
 2. `POST /api/photos`: accept image → `sharp` resize preserving aspect ratio (`fit: 'inside'`) → store `{userId}/{photoId}/display.avif` (max edge 1920) and `thumb.avif` (max edge 400).
-3. Store Storage paths (and sort order) on `route_images` / `poi_images` (or equivalent) — not wired yet.
+3. Store Storage paths (and sort order) on `route_images` / `poi_images` child tables.
 4. Map hover previews use the thumbnail; detail galleries use the display-sized file.
 
 **Avatars** (`avatars` bucket, public read; owner write under `{userId}/`):
@@ -124,7 +124,7 @@ Tables to design in the first backend phase:
 | `profiles` | Display name, optional username, bio, avatar URL, public flag; 1:1 with `auth.users`. Map URL is `/users/[id]` (not username) |
 | `routes` | Name, description, owner, `geography(LineString)`, country, region, `gpx_path`, `distance_m` |
 | `points_of_interest` | Name, description, owner, location (PostGIS), country, region |
-| `route_images` / `poi_images` | Storage path, sort order, linked to parent |
+| `route_images` / `poi_images` | Display + thumb Storage paths, sort order; FK to parent route/POI |
 | `trailmates` | Follow relationship between users (exact mechanics TBD) |
 | `travelogues` | **Later** — trip narratives linked to `routes` by id; separate from route photos |
 
