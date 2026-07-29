@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import maplibregl from 'maplibre-gl'
 import 'maplibre-gl/dist/maplibre-gl.css'
+import type { Database } from '~/types/database.types'
 import type { MapPoi } from '~/types/poi'
 import type { MapRoute } from '~/types/route'
 import { poisToGeoJson } from '~/utils/poisGeoJson'
@@ -13,6 +14,15 @@ const POIS_SOURCE_ID = 'pois'
 const POIS_LAYER_ID = 'pois-circle'
 const POIS_HIT_LAYER_ID = 'pois-hit'
 const OPENFREEMAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty'
+const SIGNED_URL_SECONDS = 60 * 60
+
+type HoverPreview = {
+  name: string
+  description: string | null
+  thumbPath: string | null
+  x: number
+  y: number
+}
 
 const props = withDefaults(
   defineProps<{
@@ -37,9 +47,14 @@ const emit = defineEmits<{
   place: [coords: { lng: number; lat: number }]
 }>()
 
+const supabase = useSupabaseClient<Database>()
 const container = ref<HTMLElement | null>(null)
 let map: maplibregl.Map | null = null
 let mapReady = false
+
+const hover = ref<HoverPreview | null>(null)
+const hoverThumbUrl = ref<string | null>(null)
+const signedThumbCache = new Map<string, string>()
 
 const syncRoutes = () => {
   if (!map?.getSource(ROUTES_SOURCE_ID)) return
@@ -80,6 +95,74 @@ const zoomToPlace = async () => {
   }
 }
 
+const resolveThumbUrl = async (thumbPath: string | null) => {
+  if (!thumbPath) {
+    hoverThumbUrl.value = null
+    return
+  }
+
+  const cached = signedThumbCache.get(thumbPath)
+  if (cached) {
+    hoverThumbUrl.value = cached
+    return
+  }
+
+  const { data, error } = await supabase.storage
+    .from('photos')
+    .createSignedUrl(thumbPath, SIGNED_URL_SECONDS)
+
+  if (error || !data?.signedUrl) {
+    hoverThumbUrl.value = null
+    return
+  }
+
+  signedThumbCache.set(thumbPath, data.signedUrl)
+  if (hover.value?.thumbPath === thumbPath) {
+    hoverThumbUrl.value = data.signedUrl
+  }
+}
+
+const clearHover = () => {
+  hover.value = null
+  hoverThumbUrl.value = null
+}
+
+const setHoverFromFeature = (
+  kind: 'route' | 'poi',
+  featureId: string,
+  point: { x: number; y: number },
+) => {
+  if (props.pinDropActive) {
+    clearHover()
+    return
+  }
+
+  const entity =
+    kind === 'route'
+      ? props.routes.find((route) => route.id === featureId)
+      : props.pois.find((poi) => poi.id === featureId)
+
+  if (!entity) {
+    clearHover()
+    return
+  }
+
+  const next: HoverPreview = {
+    name: entity.name,
+    description: entity.description,
+    thumbPath: entity.thumb_path,
+    x: point.x,
+    y: point.y,
+  }
+
+  const pathChanged = hover.value?.thumbPath !== next.thumbPath
+  hover.value = next
+
+  if (pathChanged) {
+    void resolveThumbUrl(next.thumbPath)
+  }
+}
+
 const onRouteClick = (event: maplibregl.MapLayerMouseEvent) => {
   if (props.pinDropActive) return
   const feature = event.features?.[0]
@@ -98,12 +181,28 @@ const onPoiClick = (event: maplibregl.MapLayerMouseEvent) => {
   }
 }
 
-const onFeatureEnter = () => {
+const onRouteMove = (event: maplibregl.MapLayerMouseEvent) => {
   if (props.pinDropActive) return
   if (map) map.getCanvas().style.cursor = 'pointer'
+  const feature = event.features?.[0]
+  const routeId = feature?.properties?.id
+  if (typeof routeId === 'string' && routeId) {
+    setHoverFromFeature('route', routeId, event.point)
+  }
+}
+
+const onPoiMove = (event: maplibregl.MapLayerMouseEvent) => {
+  if (props.pinDropActive) return
+  if (map) map.getCanvas().style.cursor = 'pointer'
+  const feature = event.features?.[0]
+  const poiId = feature?.properties?.id
+  if (typeof poiId === 'string' && poiId) {
+    setHoverFromFeature('poi', poiId, event.point)
+  }
 }
 
 const onFeatureLeave = () => {
+  clearHover()
   if (props.pinDropActive) {
     if (map) map.getCanvas().style.cursor = 'crosshair'
     return
@@ -119,33 +218,34 @@ const onMapPlaceClick = (event: maplibregl.MapMouseEvent) => {
 const syncPinDropCursor = () => {
   if (!map) return
   map.getCanvas().style.cursor = props.pinDropActive ? 'crosshair' : ''
+  if (props.pinDropActive) clearHover()
 }
 
 const bindRouteInteractions = () => {
   if (!map) return
   map.on('click', ROUTES_HIT_LAYER_ID, onRouteClick)
-  map.on('mouseenter', ROUTES_HIT_LAYER_ID, onFeatureEnter)
+  map.on('mousemove', ROUTES_HIT_LAYER_ID, onRouteMove)
   map.on('mouseleave', ROUTES_HIT_LAYER_ID, onFeatureLeave)
 }
 
 const unbindRouteInteractions = () => {
   if (!map) return
   map.off('click', ROUTES_HIT_LAYER_ID, onRouteClick)
-  map.off('mouseenter', ROUTES_HIT_LAYER_ID, onFeatureEnter)
+  map.off('mousemove', ROUTES_HIT_LAYER_ID, onRouteMove)
   map.off('mouseleave', ROUTES_HIT_LAYER_ID, onFeatureLeave)
 }
 
 const bindPoiInteractions = () => {
   if (!map) return
   map.on('click', POIS_HIT_LAYER_ID, onPoiClick)
-  map.on('mouseenter', POIS_HIT_LAYER_ID, onFeatureEnter)
+  map.on('mousemove', POIS_HIT_LAYER_ID, onPoiMove)
   map.on('mouseleave', POIS_HIT_LAYER_ID, onFeatureLeave)
 }
 
 const unbindPoiInteractions = () => {
   if (!map) return
   map.off('click', POIS_HIT_LAYER_ID, onPoiClick)
-  map.off('mouseenter', POIS_HIT_LAYER_ID, onFeatureEnter)
+  map.off('mousemove', POIS_HIT_LAYER_ID, onPoiMove)
   map.off('mouseleave', POIS_HIT_LAYER_ID, onFeatureLeave)
 }
 
@@ -235,6 +335,14 @@ const ensurePoisLayer = () => {
   bindPoiInteractions()
 }
 
+const hoverStyle = computed(() => {
+  if (!hover.value) return undefined
+  return {
+    left: `${hover.value.x + 14}px`,
+    top: `${hover.value.y + 14}px`,
+  }
+})
+
 onMounted(async () => {
   await nextTick()
   if (!container.value) return
@@ -300,18 +408,41 @@ onBeforeUnmount(() => {
   map?.remove()
   map = null
   mapReady = false
+  clearHover()
 })
 </script>
 
 <template>
-  <div ref="container" class="map-view" />
+  <div class="map-shell">
+    <div ref="container" class="map-view" />
+    <MapHoverCard
+      v-if="hover"
+      class="hover-anchor"
+      :style="hoverStyle"
+      :name="hover.name"
+      :description="hover.description"
+      :thumb-url="hoverThumbUrl"
+    />
+  </div>
 </template>
 
 <style scoped>
+.map-shell {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
 .map-view {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
+}
+
+.hover-anchor {
+  position: absolute;
+  z-index: 2;
 }
 </style>

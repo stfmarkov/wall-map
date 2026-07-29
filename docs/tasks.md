@@ -66,13 +66,13 @@ Do not skip PostGIS or RLS setup — they are harder to bolt on later.
 - [x] `route_images` / `poi_images` tables (not JSON on parent) + RLS via parent
 - [x] Attach photos on edit flows (upload + DB attach separate from name/description Save; not on create)
 - [x] Image gallery on detail pages (display-sized files)
-- [ ] Thumbnail in map hover preview (use `sharp` thumb variant)
+- [x] Thumbnail in map hover preview (use `sharp` thumb variant)
 
 
 
 ## Phase 5 — Map UX & filters
 
-- [ ] Hover preview: name, summary, thumbnail
+- [x] Hover preview: name, summary, thumbnail
 - [ ] Click → navigate to detail
 - [ ] Filter UI: country, region, content type (routes / POIs / both)
 - [ ] Off-road filter: store a simple `tags` or `surface` field; manual tag or “TBD” default for v1

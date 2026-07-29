@@ -7,6 +7,8 @@ export type MapPoi = {
   description: string | null
   country: string | null
   region: string | null
+  /** Storage path of the first image thumb (photos bucket); null if none. */
+  thumb_path: string | null
   created_at: string
   geometry: Point
   /** Present when loaded via get_map_poi (deep link). */

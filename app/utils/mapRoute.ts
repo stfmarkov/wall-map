@@ -18,6 +18,7 @@ export const toMapRoute = (row: {
   created_at: string
   geometry: Json
   gpx_path?: string | null
+  thumb_path?: string | null
   owner_id?: string
 }): MapRoute | null => {
   if (!isLineString(row.geometry)) return null
@@ -29,6 +30,7 @@ export const toMapRoute = (row: {
     country: row.country,
     region: row.region,
     gpx_path: row.gpx_path ?? null,
+    thumb_path: row.thumb_path ?? null,
     created_at: row.created_at,
     geometry: row.geometry,
     ...(row.owner_id ? { owner_id: row.owner_id } : {}),

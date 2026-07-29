@@ -16,6 +16,7 @@ export const toMapPoi = (row: {
   region: string | null
   created_at: string
   geometry: Json
+  thumb_path?: string | null
   owner_id?: string
 }): MapPoi | null => {
   if (!isPoint(row.geometry)) return null
@@ -25,6 +26,7 @@ export const toMapPoi = (row: {
     description: row.description,
     country: row.country,
     region: row.region,
+    thumb_path: row.thumb_path ?? null,
     created_at: row.created_at,
     geometry: row.geometry,
     ...(row.owner_id ? { owner_id: row.owner_id } : {}),
