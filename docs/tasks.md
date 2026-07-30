@@ -142,6 +142,17 @@ Typed categories for points of interest (food, historic monument, etc.) — edit
 - [ ] Edit UI select + chips on POI detail / hover
 - [ ] Map filter by POI category
 
+
+
+## Later — Wall map aesthetic
+
+Make the profile map feel like a physical wall map. See [Project Goals — Map](./project-goals.md#map-profile-main-screen).
+
+- [ ] Inset map chrome: slightly smaller than full screen with visible wall texture around the edges
+- [ ] Decorative overlays: duct tape / pushpins in a few places, a few sticky notes
+- [ ] Profile settings: selectable wall texture, sticky-note style, and tape/pushpin designs and colors
+- [ ] Persist appearance on profile; visitors see the owner’s chosen wall look on `/users/[id]`
+
 ---
 
 

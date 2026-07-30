@@ -6,7 +6,7 @@ This document defines what Wall Map is and what we are building toward. It is th
 
 Wall Map is a personal and social route atlas. Each user maintains a living map of the routes they have ridden, hiked, driven, or otherwise traveled, plus **points of interest** — memorable places pinned to the world. Routes and points of interest are first-class map objects: they have location, metadata, media, and a story. Users can explore their own collection, filter it, export tracks, and visit other users' maps to discover new places and paths.
 
-The product should feel map-native — geography, trails, and exploration are central, not bolted on.
+The product should feel map-native — geography, trails, and exploration are central, not bolted on. Longer term, the profile map should read like a **physical wall map**: slightly inset from the screen edge, with visible wall texture, duct tape or pushpins in a few places, and sticky notes — a personal board, not a fullscreen web map.
 
 ## Core concepts
 
@@ -14,7 +14,7 @@ The product should feel map-native — geography, trails, and exploration are ce
 
 Every user has a **profile** that represents their identity on the platform. The profile's **main screen is a map** — not a feed or a list. The map is the user's personal wall of routes and points of interest: a visual record of where they have been and what they found there.
 
-Maps are addressed by user id (`/users/[id]`); `/users/me` opens the signed-in user’s map. **Username** is an optional public handle, not required for routing. Users edit display name, username, bio, visibility, and avatar on `/profile`.
+Maps are addressed by user id (`/users/[id]`); `/users/me` opens the signed-in user’s map. **Username** is an optional public handle, not required for routing. Users edit display name, username, bio, visibility, and avatar on `/profile`. Later, profile settings also cover **wall appearance** — selectable wall texture, sticky-note style, and tape/pushpin designs and colors — so each user’s map wall can look distinct when visited by others.
 
 ### Route
 
@@ -77,6 +77,8 @@ On a user's profile, the map displays **all routes and points of interest they h
 | **Click** | Open the **route detail screen** or **point of interest detail screen** |
 
 The map is both a portfolio and a navigation hub.
+
+**Wall look (later):** the map sits slightly smaller than full screen so wall texture shows around it. Decorative duct tape / pushpins and a few sticky notes frame the board. Texture, sticky-note, and tape/pushpin designs and colors are chosen on the user profile and visible to visitors.
 
 ### Route detail screen
 
@@ -204,6 +206,7 @@ These are goals, not commitments for v1. They help keep early builds focused:
 - Detailed permissions model beyond profile public/private and per-route personal/public (unless needed for MVP)
 - **Route status & per-route visibility** — plan vs done; personal vs public routes; filter by status (see Route and Filters above)
 - **Travelogues** — rich trip narratives as a separate collection linked to routes by id (not stored on the route row; route photos stay on `route_images`)
+- **Wall map aesthetic** — inset map with wall texture, duct tape / pushpins, sticky notes; profile-selectable designs and colors (see Map above)
 
 ## Success criteria
 
