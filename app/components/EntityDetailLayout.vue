@@ -104,6 +104,10 @@ defineProps<{
   line-height: 1.25;
 }
 
+:slotted(.detail-tags) {
+  margin: 0;
+}
+
 :slotted(.fields) {
   margin: 0;
   display: flex;

@@ -1,6 +1,16 @@
 <script setup lang="ts">
 import type { Database } from '~/types/database.types'
 import type { ComboboxOption, MapContentTypeFilter, MapFiltersSelection } from '~/types/mapFilters'
+import { emptyMapFilters } from '~/types/mapFilters'
+import {
+  isRouteDifficulty,
+  isRouteSurface,
+  isRouteTransport,
+  routeDifficultyOptions,
+  routeSurfaceOptions,
+  routeTransportOptions,
+  withAllOption,
+} from '~/types/routeDetails'
 
 const props = defineProps<{
   ownerId: string
@@ -13,6 +23,10 @@ const CONTENT_TYPE_OPTIONS: ComboboxOption[] = [
   { value: 'route', label: 'Routes' },
   { value: 'poi', label: 'POIs' },
 ]
+
+const transportFilterOptions = withAllOption(routeTransportOptions())
+const difficultyFilterOptions = withAllOption(routeDifficultyOptions())
+const surfaceFilterOptions = withAllOption(routeSurfaceOptions())
 
 const supabase = useSupabaseClient<Database>()
 
@@ -63,6 +77,24 @@ const onTypeSelected = (value: string) => {
   patchFilters({ contentType })
 }
 
+const onTransportSelected = (value: string) => {
+  patchFilters({
+    transport: isRouteTransport(value) ? value : null,
+  })
+}
+
+const onDifficultySelected = (value: string) => {
+  patchFilters({
+    difficulty: isRouteDifficulty(value) ? value : null,
+  })
+}
+
+const onSurfaceSelected = (value: string) => {
+  patchFilters({
+    surface: isRouteSurface(value) ? value : null,
+  })
+}
+
 watch(countryQuery, async (query) => {
   try {
     countryOptions.value = toOptions(await countryCache.sync(query))
@@ -94,11 +126,7 @@ watch(
 )
 
 const clearAll = () => {
-  filters.value = {
-    country: null,
-    region: null,
-    contentType: 'both',
-  }
+  filters.value = emptyMapFilters()
   countryQuery.value = ''
   regionQuery.value = ''
   countryOptions.value = []
@@ -111,7 +139,10 @@ const hasActiveFilters = computed(() =>
   Boolean(
     filters.value.country
     || filters.value.region
-    || filters.value.contentType !== 'both',
+    || filters.value.contentType !== 'both'
+    || filters.value.transport
+    || filters.value.difficulty
+    || filters.value.surface,
   ),
 )
 
@@ -152,6 +183,24 @@ const onRegionClear = () => {
       :options="CONTENT_TYPE_OPTIONS"
       @update:model-value="onTypeSelected"
     />
+    <UiSelect
+      :model-value="filters.transport ?? ''"
+      label="Transport"
+      :options="transportFilterOptions"
+      @update:model-value="onTransportSelected"
+    />
+    <UiSelect
+      :model-value="filters.difficulty ?? ''"
+      label="Difficulty"
+      :options="difficultyFilterOptions"
+      @update:model-value="onDifficultySelected"
+    />
+    <UiSelect
+      :model-value="filters.surface ?? ''"
+      label="Surface"
+      :options="surfaceFilterOptions"
+      @update:model-value="onSurfaceSelected"
+    />
     <button
       v-if="hasActiveFilters"
       type="button"
@@ -173,7 +222,7 @@ const onRegionClear = () => {
   flex-wrap: wrap;
   align-items: flex-end;
   gap: 0.65rem;
-  max-width: min(100% - 2rem, 42rem);
+  max-width: min(100% - 2rem, 52rem);
   padding: 0.65rem 0.75rem;
   border-radius: 10px;
   border: 1px solid rgb(155 176 154 / 30%);

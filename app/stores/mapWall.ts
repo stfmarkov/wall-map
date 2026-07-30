@@ -2,6 +2,7 @@ import type { Database } from '~/types/database.types'
 import type { PublicProfile } from '~/types/profile'
 import type { MapPoi } from '~/types/poi'
 import type { MapRoute } from '~/types/route'
+import type { RouteDifficulty, RouteSurface, RouteTransport } from '~/types/routeDetails'
 import { toMapPoi } from '~/utils/mapPoi'
 import { toMapRoute } from '~/utils/mapRoute'
 
@@ -144,6 +145,9 @@ export const useMapWallStore = defineStore('mapWall', () => {
     patch: {
       name: string
       description: string | null
+      transport: RouteTransport | null
+      difficulty: RouteDifficulty | null
+      surface: RouteSurface | null
     },
   ) => {
     const { error: updateError } = await supabase
@@ -151,6 +155,9 @@ export const useMapWallStore = defineStore('mapWall', () => {
       .update({
         name: patch.name,
         description: patch.description,
+        transport: patch.transport,
+        difficulty: patch.difficulty,
+        surface: patch.surface,
       })
       .eq('id', routeId)
 
@@ -163,6 +170,9 @@ export const useMapWallStore = defineStore('mapWall', () => {
       ...routes.value[index],
       name: patch.name,
       description: patch.description,
+      transport: patch.transport,
+      difficulty: patch.difficulty,
+      surface: patch.surface,
     } as MapRoute
   }
 

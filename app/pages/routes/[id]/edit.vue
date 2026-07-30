@@ -1,4 +1,14 @@
 <script setup lang="ts">
+import {
+  isRouteDifficulty,
+  isRouteSurface,
+  isRouteTransport,
+  routeDifficultyOptions,
+  routeSurfaceOptions,
+  routeTransportOptions,
+  withUnsetOption,
+} from '~/types/routeDetails'
+
 definePageMeta({
   middleware: 'auth',
 })
@@ -22,8 +32,15 @@ const mapRoute = computed(() =>
 
 const name = ref('')
 const description = ref('')
+const transport = ref('')
+const difficulty = ref('')
+const surface = ref('')
 const pending = ref(false)
 const errorMessage = ref('')
+
+const transportSelectOptions = withUnsetOption(routeTransportOptions())
+const difficultySelectOptions = withUnsetOption(routeDifficultyOptions())
+const surfaceSelectOptions = withUnsetOption(routeSurfaceOptions())
 
 const detailPath = computed(() => `/routes/${routeId.value}`)
 const backPath = computed(() => {
@@ -45,6 +62,9 @@ const placeLabel = computed(() => {
 const hydrateForm = () => {
   name.value = mapRoute.value?.name ?? ''
   description.value = mapRoute.value?.description ?? ''
+  transport.value = mapRoute.value?.transport ?? ''
+  difficulty.value = mapRoute.value?.difficulty ?? ''
+  surface.value = mapRoute.value?.surface ?? ''
   errorMessage.value = ''
 }
 
@@ -81,6 +101,9 @@ const save = async () => {
     await mapWall.updateRouteMeta(routeId.value, {
       name: trimmedName,
       description: description.value.trim() || null,
+      transport: isRouteTransport(transport.value) ? transport.value : null,
+      difficulty: isRouteDifficulty(difficulty.value) ? difficulty.value : null,
+      surface: isRouteSurface(surface.value) ? surface.value : null,
     })
     await navigateTo(detailPath.value)
   }
@@ -141,6 +164,24 @@ const save = async () => {
           :rows="6"
           placeholder="Notes about this trip…"
         />
+
+        <div class="detail-selects">
+          <UiSelect
+            v-model="transport"
+            label="Transport"
+            :options="transportSelectOptions"
+          />
+          <UiSelect
+            v-model="difficulty"
+            label="Difficulty"
+            :options="difficultySelectOptions"
+          />
+          <UiSelect
+            v-model="surface"
+            label="Surface"
+            :options="surfaceSelectOptions"
+          />
+        </div>
 
         <p class="place-readonly">
           <span class="place-label">Location</span>
@@ -211,6 +252,17 @@ const save = async () => {
   margin: 0 auto;
   display: grid;
   gap: 1rem;
+}
+
+.detail-selects {
+  display: grid;
+  gap: 0.75rem;
+}
+
+@media (min-width: 40rem) {
+  .detail-selects {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
 }
 
 .place-readonly {

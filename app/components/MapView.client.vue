@@ -4,6 +4,7 @@ import 'maplibre-gl/dist/maplibre-gl.css'
 import type { Database } from '~/types/database.types'
 import type { MapPoi } from '~/types/poi'
 import type { MapRoute } from '~/types/route'
+import type { RouteDifficulty, RouteSurface, RouteTransport } from '~/types/routeDetails'
 import { boundsFromMapFeatures } from '~/utils/mapFeatureBounds'
 import { poisToGeoJson } from '~/utils/poisGeoJson'
 import { routesToGeoJson } from '~/utils/routesGeoJson'
@@ -21,6 +22,9 @@ type HoverPreview = {
   name: string
   description: string | null
   thumbPath: string | null
+  transport: RouteTransport | null
+  difficulty: RouteDifficulty | null
+  surface: RouteSurface | null
   x: number
   y: number
 }
@@ -165,6 +169,9 @@ const setHoverFromFeature = (
     name: entity.name,
     description: entity.description,
     thumbPath: entity.thumb_path,
+    transport: kind === 'route' ? (entity as MapRoute).transport : null,
+    difficulty: kind === 'route' ? (entity as MapRoute).difficulty : null,
+    surface: kind === 'route' ? (entity as MapRoute).surface : null,
     x: point.x,
     y: point.y,
   }
@@ -432,6 +439,9 @@ onBeforeUnmount(() => {
       :name="hover.name"
       :description="hover.description"
       :thumb-url="hoverThumbUrl"
+      :transport="hover.transport"
+      :difficulty="hover.difficulty"
+      :surface="hover.surface"
     />
   </div>
 </template>

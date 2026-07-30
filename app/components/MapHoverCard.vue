@@ -1,8 +1,13 @@
 <script setup lang="ts">
+import type { RouteDifficulty, RouteSurface, RouteTransport } from '~/types/routeDetails'
+
 const props = defineProps<{
   name: string
   description?: string | null
   thumbUrl?: string | null
+  transport?: RouteTransport | null
+  difficulty?: RouteDifficulty | null
+  surface?: RouteSurface | null
 }>()
 
 const DESCRIPTION_PREVIEW_LENGTH = 15
@@ -25,6 +30,12 @@ const descriptionPreview = computed(() => {
     >
     <div class="copy">
       <p class="name">{{ name }}</p>
+      <RouteDetailTags
+        :transport="transport"
+        :difficulty="difficulty"
+        :surface="surface"
+        compact
+      />
       <p v-if="descriptionPreview" class="description">{{ descriptionPreview }}</p>
     </div>
   </div>
@@ -35,7 +46,7 @@ const descriptionPreview = computed(() => {
   display: flex;
   align-items: center;
   gap: 0.55rem;
-  max-width: 14rem;
+  max-width: 16rem;
   padding: 0.4rem 0.55rem;
   border: 1px solid #3a433c;
   border-radius: 8px;

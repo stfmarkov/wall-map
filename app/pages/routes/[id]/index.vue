@@ -104,6 +104,13 @@ const downloadGpx = async () => {
     <template v-if="mapRoute">
       <h1 class="title">{{ mapRoute.name }}</h1>
 
+      <RouteDetailTags
+        class="detail-tags"
+        :transport="mapRoute.transport"
+        :difficulty="mapRoute.difficulty"
+        :surface="mapRoute.surface"
+      />
+
       <dl class="fields">
         <div class="field">
           <dt>Country:</dt>

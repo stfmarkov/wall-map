@@ -74,9 +74,9 @@ Do not skip PostGIS or RLS setup — they are harder to bolt on later.
 
 - [x] Hover preview: name, summary, thumbnail
 - [x] Click → navigate to detail
-- [ ] Filter UI: country, region, content type (routes / POIs / both)
-- [ ] Off-road filter: store a simple `tags` or `surface` field; manual tag or “TBD” default for v1
-- [ ] Fit map bounds to filtered results
+- [x] Filter UI: country, region, content type (routes / POIs / both)
+- [x] Route detail tags + filters: transport, difficulty, surface (predefined selects; unset allowed)
+- [x] Fit map bounds to filtered results
 
 
 
@@ -131,6 +131,16 @@ Rich trip narratives as a **separate collection**, linked to routes by id (not e
 - [ ] RLS aligned with route/profile visibility
 - [ ] Create / edit / view travelogue UI; open from route detail when linked
 - [ ] Travelogue media (separate from `route_images`)
+
+
+
+## Later — POI categories
+
+Typed categories for points of interest (food, historic monument, etc.) — edit select, display on detail/hover, and map filters. Routes already use transport / difficulty / surface.
+
+- [ ] `points_of_interest` category column (predefined values)
+- [ ] Edit UI select + chips on POI detail / hover
+- [ ] Map filter by POI category
 
 ---
 

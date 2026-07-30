@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { MapFiltersSelection } from '~/types/mapFilters'
+import { emptyMapFilters } from '~/types/mapFilters'
 
 const route = useRoute()
 const mapWall = useMapWallStore()
@@ -21,17 +22,16 @@ const placing = ref(false)
 const placeMessage = ref('')
 const placeError = ref('')
 
-const mapFilters = ref<MapFiltersSelection>({
-  country: null,
-  region: null,
-  contentType: 'both',
-})
+const mapFilters = ref<MapFiltersSelection>(emptyMapFilters())
 
 const filteredRoutes = computed(() => {
   if (mapFilters.value.contentType === 'poi') return []
   return routes.value.filter((entry) =>
     (!mapFilters.value.country || entry.country === mapFilters.value.country)
-    && (!mapFilters.value.region || entry.region === mapFilters.value.region),
+    && (!mapFilters.value.region || entry.region === mapFilters.value.region)
+    && (!mapFilters.value.transport || entry.transport === mapFilters.value.transport)
+    && (!mapFilters.value.difficulty || entry.difficulty === mapFilters.value.difficulty)
+    && (!mapFilters.value.surface || entry.surface === mapFilters.value.surface),
   )
 })
 
@@ -49,11 +49,7 @@ watch(userId, (id) => {
   pinDropActive.value = false
   placeMessage.value = ''
   placeError.value = ''
-  mapFilters.value = {
-    country: null,
-    region: null,
-    contentType: 'both',
-  }
+  mapFilters.value = emptyMapFilters()
   void mapWall.loadWall(id)
 })
 
